@@ -104,7 +104,8 @@ pixelquant/
 ├── app_gui.py              # Main application entry point (loads and initializes mixins)
 ├── build.py                # Compilation automation script
 ├── VERSION                 # Version control file (currently 0.5.3)
-├── README.md               # User manual / instructions
+├── README.md               # Developer manual / technical setup instructions
+├── USER-GUIDE.md           # Getting started manual for end-users
 ├── AGENT.md                # Developer / Agent handoff notes
 ├── pytest.ini              # Pytest configuration file
 ├── requirements.txt        # Production dependencies

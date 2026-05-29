@@ -146,9 +146,11 @@ class PlanMinerApp(
 
     def load_configuration(self):
         self.app_name = "PlanMiner"
+        self.app_url = "https://www.geoicon.com"
+        self.company_name = "PlanMiner"
+        self.company_url = "https://www.geoicon.com"
         self.logo_path = get_resource_path(os.path.join("assets", "logo", "logo.png"))
         self.ico_path = get_resource_path(os.path.join("assets", "logo", "favicon.ico"))
-        self.company_name = "PlanMiner"
         self.copyright_notice = "Copyright © 2026. All rights reserved."
         self.licensed_to = "Internal Testing"
         self.expiry_date = "2027-12-31"
@@ -158,7 +160,7 @@ class PlanMinerApp(
         self.def_min_area = 0.2
         self.def_max_area = 4.0
         self.def_proximity = 100.0
-        self.app_version = "0.3.0"
+        self.app_version = "0.5.3"
         
         # Load build date from package or fallback to current system time
         from datetime import datetime, timedelta
@@ -178,9 +180,11 @@ class PlanMinerApp(
                     if cfg:
                         branding = cfg.get("branding", {})
                         self.app_name = branding.get("app_name", self.app_name)
+                        self.app_url = branding.get("app_url", self.app_url)
                         self.logo_path = get_resource_path(branding.get("logo_path", "assets/logo/logo.png"))
                         self.ico_path = get_resource_path(branding.get("ico_path", "assets/logo/favicon.ico"))
                         self.company_name = branding.get("company_name", self.company_name)
+                        self.company_url = branding.get("company_url", self.company_url)
                         self.copyright_notice = branding.get("copyright_notice", self.copyright_notice)
                         
                         licensing = cfg.get("licensing", {})

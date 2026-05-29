@@ -56,8 +56,9 @@ class CTkAboutDialog(ctk.CTkToplevel):
                 new_w = int((orig_w * new_h) / orig_h)
                 self.img_logo = ctk.CTkImage(light_image=pil_logo, dark_image=pil_logo, size=(new_w, new_h))
                 
-                lbl_logo = ctk.CTkLabel(content_frame, image=self.img_logo, text="")
+                lbl_logo = ctk.CTkLabel(content_frame, image=self.img_logo, text="", cursor="hand2")
                 lbl_logo.grid(row=0, column=0, pady=(0, 10))
+                lbl_logo.bind("<Button-1>", lambda e: webbrowser.open_new_tab(parent.app_url))
                 logo_row = 1
             except Exception as e:
                 parent.logger.warning("Error loading logo in about dialog: %s", e)
@@ -65,9 +66,11 @@ class CTkAboutDialog(ctk.CTkToplevel):
         # App Name Label
         lbl_app_name = ctk.CTkLabel(
             content_frame, text=parent.app_name, 
-            font=ctk.CTkFont(family=parent.font_family, size=22, weight="bold")
+            font=ctk.CTkFont(family=parent.font_family, size=22, weight="bold"),
+            cursor="hand2"
         )
         lbl_app_name.grid(row=logo_row, column=0, pady=(0, 2))
+        lbl_app_name.bind("<Button-1>", lambda e: webbrowser.open_new_tab(parent.app_url))
         
         # Version
         lbl_version = ctk.CTkLabel(
@@ -94,13 +97,16 @@ class CTkAboutDialog(ctk.CTkToplevel):
         )
         lbl_expiry.grid(row=1, column=0, padx=10, pady=(2, 8), sticky="w")
         
+        import webbrowser
+        
         # Copyright Notice
         lbl_copyright = ctk.CTkLabel(
             content_frame, text=parent.copyright_notice, 
             font=ctk.CTkFont(family=parent.font_family, size=11),
-            text_color="gray"
+            text_color="gray", cursor="hand2"
         )
         lbl_copyright.grid(row=logo_row + 3, column=0, pady=(10, 5))
+        lbl_copyright.bind("<Button-1>", lambda e: webbrowser.open_new_tab(parent.company_url))
         
         # OK Button
         btn_ok = ctk.CTkButton(

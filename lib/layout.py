@@ -15,11 +15,14 @@ class LayoutMixin:
         title_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         title_frame.grid(row=0, column=0, padx=12, pady=(20, 6), sticky="w")
 
+        import webbrowser
         title_label = ctk.CTkLabel(
             title_frame, text=self.app_name,
-            font=ctk.CTkFont(family=self.font_family, size=22, weight="bold")
+            font=ctk.CTkFont(family=self.font_family, size=22, weight="bold"),
+            cursor="hand2"
         )
         title_label.pack(side=tk.LEFT)
+        title_label.bind("<Button-1>", lambda e: webbrowser.open_new_tab(self.app_url))
 
         version_label = ctk.CTkLabel(
             title_frame, text=f"v{self.app_version}",

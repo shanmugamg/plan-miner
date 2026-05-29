@@ -9,6 +9,7 @@
 branding:
   # Title displayed on the main window titlebar and UI headers.
   app_name: "PlanMiner"
+  app_url: "https://www.geoicon.com"
   
   # Relative path to the application's logo (used in About box).
   logo_path: "assets/logo/logo.png"
@@ -18,6 +19,7 @@ branding:
   
   # Company name displayed in dialogs and copyright strings.
   company_name: "GeoICON Pte. Ltd."
+  company_url: "https://www.geoicon.com"
   
   # Copyright text displayed in the footers and About dialog box.
   copyright_notice: "© 2026 GeoICON Pte. Ltd., Singapore. All rights reserved."

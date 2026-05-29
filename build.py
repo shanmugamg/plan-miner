@@ -255,6 +255,7 @@ def build():
         # Copy deployment guides and cert
         cert_src = os.path.join("code-sign", "codesign.cer")
         guide_src = os.path.join("code-sign", "CERT_DEPLOYMENT_GUIDE.html")
+        guide_md = "USER-GUIDE.md"
         
         if os.path.exists(cert_src):
             shutil.copy(cert_src, os.path.join(final_output_dir, "codesign.cer"))
@@ -263,6 +264,10 @@ def build():
         if os.path.exists(guide_src):
             shutil.copy(guide_src, os.path.join(final_output_dir, "CERT_DEPLOYMENT_GUIDE.html"))
             log_info("Copied CERT_DEPLOYMENT_GUIDE.html to dist folder")
+
+        if os.path.exists(guide_md):
+            shutil.copy(guide_md, os.path.join(final_output_dir, "USER-GUIDE.md"))
+            log_info("Copied USER-GUIDE.md to dist folder")
 
         sign_binary(final_exe_path)
         
