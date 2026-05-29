@@ -1,0 +1,15 @@
+branding:
+  app_name: "PlanMiner"
+  logo_path: "assets/logo/logo.png"
+  ico_path: "assets/logo/favicon.ico"
+  company_name: "GeoICON Pte. Ltd."
+  copyright_notice: "© 2026 GeoICON Pte. Ltd., Singapore. All rights reserved."
+  version_from_file: "VERSION"
+  licensed_to: "Internal Testing"
+  expiry_date: "2026-06-30"
+
+thresholds:
+  tolerance: 0.5
+  min_area: 0.2
+  max_area: 4.0
+  proximity: 100.0

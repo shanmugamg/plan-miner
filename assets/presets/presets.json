@@ -1,0 +1,23 @@
+{
+    "Tubelight": {
+        "lower_bound": [
+            142,
+            30,
+            230
+        ],
+        "upper_bound": [
+            158,
+            255,
+            255
+        ],
+        "width": 60,
+        "height": 34,
+        "area": 244,
+        "patch_bgr_b64": "iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAIAAAC1nk4lAAACKUlEQVRoBdXBMYsdZRgG0PMa9sIGu/1QSCEWARlsxUKwUkI0YCVphAjiYjNVEO28jeQ/2AiRIASREJStJBZWgqQIymBrPUVEWALGPHJh4cIy/fCdU0n0ppLoTSXRm0qiN5VEbyqJ3lQSi8LEn8TOc7zKyxxYXSWx6DFv8hcbO+GQ63zGi9ZVSSyaGbjGDTtPuM9djrnFgRVVEotmBka2zpxykxMecNmKKolFMwMjW3v3OOYOV62oklg0MzCytfcDH/EN71hRJbFoZmBk68y/fMlX/MxgRZXEopmBt7hu5z9+5TZv8zWHVlRJLJoZOOWinWf8TeNHXrOuSmLRzMA1bth5wn3ucswtDqyoklg0MzCydeaUm5zwgMtWVEksmhkY2dq7xzF3uGpFlcSimYGRrb0TPuQ271pR5WlcsGBmYGRr73s+4VuuWFFlG59z6LyZgZGtnfCYT/mJX3jJiiovxB80580MvMIbdp7xkIeMfMHGiiotJprz/uF9frd3iY/5gOetq9JiollwylN7F7hIWV2lxUTTkUqLiaYjlRYTTUcqLSaajlSO4jeOdKRyEK+z0ZHKJq6w0ZHKUTziSEcqLSaajlRaTDQdqbSYaDpSaTHRdKTSYqLpSKXFRNORyqV4xJGOVL6L99joSCXRm0qiN5VEbyqJ3lQSvakkelNJ9KaS6E0l0ZtKojeVRG8qid5UEr2pJHpTSfSmkuhNJdGbSqI3lURvKone/A+2XQEZ2bvw2wAAAABJRU5ErkJggg==",
+        "patch_mask_b64": "iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAAAAAAfl4auAAAAsklEQVRIDaXBwVEAMQwAMW3/RZuBm/xDLGUhC1nIQhaykGP8yj/kGH9yL8f45FqOEYbcyjHCkFs5RhhyK8cIQ27lGJ9cyzE+uZZjfHItxwhDbuUYYcitHCMMuZVjhCG3mnxGGHKryWd8cq3JZ/zJvSbPmjxr8qzJsybPGnnVeNd41+RZk2dNnjV51uRZk2dNnjV51uRZFrKQhSxkIQtZyEIWspCFLGQhC1nIQhaykIUs/ABmei47BsaR4QAAAABJRU5ErkJggg==",
+        "tolerance": 0.5,
+        "min_area": 0.2,
+        "max_area": 4.0,
+        "proximity": 75.0
+    }
+}

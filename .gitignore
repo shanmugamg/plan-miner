@@ -1,0 +1,36 @@
+# Python bytecode/cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# PyInstaller build files and distributions
+build/
+dist/
+PlanMiner_Dist/
+*.spec
+
+# Local environment & secrets
+.env
+.env.*
+
+# Application logs
+logs/
+planminer.log
+
+# Private code signing certificates
+code-sign/
+
+# Local processing scratch & input/output folders
+scratch/
+output/
+
+# IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
