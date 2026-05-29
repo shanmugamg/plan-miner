@@ -119,6 +119,22 @@ class PlanMinerApp(
         
         self.create_layout()
         self.update_preset_menu()
+        self.check_expiry()
+
+    def check_expiry(self):
+        from datetime import datetime
+        if self.expiry_date and self.expiry_date != "None":
+            try:
+                exp_date = datetime.strptime(self.expiry_date, "%Y-%m-%d").date()
+                if datetime.now().date() > exp_date:
+                    self.show_error(
+                        "License Expired", 
+                        f"This software license has expired on {self.expiry_date}.\n\nPlease contact support or renew the license key to continue using the application."
+                    )
+                    self.destroy()
+                    sys.exit(0)
+            except Exception as e:
+                self.logger.warning("Failed to check license expiry: %s", e)
 
     # ── CUSTOM DIALOG HELPER WRAPPERS ────────────────────────────────────────
     def show_info(self, title, message):
@@ -160,10 +176,12 @@ class PlanMinerApp(
                         self.ico_path = get_resource_path(branding.get("ico_path", "assets/logo/favicon.ico"))
                         self.company_name = branding.get("company_name", self.company_name)
                         self.copyright_notice = branding.get("copyright_notice", self.copyright_notice)
-                        self.licensed_to = branding.get("licensed_to", self.licensed_to)
-                        self.expiry_date = branding.get("expiry_date", self.expiry_date)
                         
-                        version_file = branding.get("version_from_file", "VERSION")
+                        licensing = cfg.get("licensing", {})
+                        self.licensed_to = licensing.get("licensed_to", self.licensed_to)
+                        self.expiry_date = licensing.get("expiry_date", self.expiry_date)
+                        
+                        version_file = branding.get("version_file", "VERSION")
                         version_file_path = get_resource_path(version_file)
                         if os.path.exists(version_file_path):
                             with open(version_file_path, 'r') as vf:

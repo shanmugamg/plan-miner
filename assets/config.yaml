@@ -1,15 +1,54 @@
+# ==============================================================================
+# PlanMiner Application Configuration File
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. BRANDING SETTINGS
+# ------------------------------------------------------------------------------
+# Defines visual details, logos, title, and copyright notices for the application.
 branding:
+  # Title displayed on the main window titlebar and UI headers.
   app_name: "PlanMiner"
+  
+  # Relative path to the application's logo (used in About box).
   logo_path: "assets/logo/logo.png"
+  
+  # Relative path to the application window favicon/icon.
   ico_path: "assets/logo/favicon.ico"
+  
+  # Company name displayed in dialogs and copyright strings.
   company_name: "GeoICON Pte. Ltd."
+  
+  # Copyright text displayed in the footers and About dialog box.
   copyright_notice: "© 2026 GeoICON Pte. Ltd., Singapore. All rights reserved."
-  version_from_file: "VERSION"
+  
+  # Path to the plain-text VERSION file containing version numbering.
+  version_file: "VERSION"
+
+# ------------------------------------------------------------------------------
+# 2. LICENSING & DEPLOYMENT
+# ------------------------------------------------------------------------------
+# Governs license targets, compliance parameters, and software lock expiration.
+licensing:
+  # Name of the organization or entity the software bundle is licensed to.
   licensed_to: "Internal Testing"
+  
+  # Calendar date (YYYY-MM-DD) when the portable software executable locks out.
   expiry_date: "2026-06-30"
 
+# ------------------------------------------------------------------------------
+# 3. DETECTION THRESHOLDS
+# ------------------------------------------------------------------------------
+# Establishes default parameters for the CV image scanning engine.
 thresholds:
+  # Extension of the HSV color filter range (higher accepts broader color variance).
   tolerance: 0.5
+  
+  # Reject detected objects whose area is smaller than this factor of template size.
   min_area: 0.2
+  
+  # Reject detected objects whose area is larger than this factor of template size.
   max_area: 4.0
+  
+  # Maximum Euclidean pixel distance below which separate shapes are grouped/merged.
   proximity: 100.0

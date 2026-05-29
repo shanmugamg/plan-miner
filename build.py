@@ -108,7 +108,6 @@ def sign_binary(binary_path):
 def build():
     app_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(app_dir, "assets", "config.yaml")
-    version_file = os.path.join(app_dir, "VERSION")
     
     if not os.path.exists("assets") or not os.path.exists(config_path):
         log_err("Build script must be run from the 'planminer' root directory.")
@@ -118,12 +117,6 @@ def build():
     print(f"{CLR_BOLD}{CLR_BLUE}             PlanMiner - Build Pipeline                    {CLR_RESET}")
     print(f"{CLR_BOLD}{CLR_BLUE}============================================================{CLR_RESET}\n")
 
-    # Load version and branding
-    app_version = "Unknown"
-    if os.path.exists(version_file):
-        with open(version_file, "r") as f:
-            app_version = f.read().strip()
-
     cfg = {}
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
@@ -132,8 +125,18 @@ def build():
     branding = cfg.get("branding", {})
     app_name = branding.get("app_name", "PlanMiner")
     company = branding.get("company_name", "Unknown")
-    license_to = branding.get("licensed_to", "Unknown")
-    expiry = branding.get("expiry_date", "None")
+    version_file_name = branding.get("version_file", "VERSION")
+    version_file = os.path.join(app_dir, version_file_name)
+    
+    licensing = cfg.get("licensing", {})
+    license_to = licensing.get("licensed_to", "Unknown")
+    expiry = licensing.get("expiry_date", "None")
+
+    # Load version
+    app_version = "Unknown"
+    if os.path.exists(version_file):
+        with open(version_file, "r") as f:
+            app_version = f.read().strip()
 
     # PRE-FLIGHT CHECK
     print(f"{CLR_BOLD}{CLR_YELLOW}+-- PRE-FLIGHT CHECK ---------------------------------------+{CLR_RESET}")

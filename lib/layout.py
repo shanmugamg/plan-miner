@@ -260,6 +260,10 @@ class LayoutMixin:
         )
         self.btn_zoom_reset.pack(side=tk.RIGHT, padx=2)
         
+        # Separator before Fit button
+        sep_fit = ctk.CTkLabel(right_group, text="|", text_color="#555555", width=6)
+        sep_fit.pack(side=tk.RIGHT, padx=2)
+        
         self.btn_zoom_in = ctk.CTkButton(
             right_group, text="➕", width=34, height=28, 
             fg_color="#1e8449", hover_color="#27ae60",
