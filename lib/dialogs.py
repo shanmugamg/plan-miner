@@ -8,6 +8,7 @@ from lib.utils import apply_window_icon
 class CTkMessageDialog(ctk.CTkToplevel):
     def __init__(self, parent, title, message, dialog_type="info"):
         super().__init__(parent)
+        self.attributes("-alpha", 0.0)
         self.title(parent.app_name)
         self.geometry("450x220")
         self.resizable(False, False)
@@ -94,6 +95,7 @@ class CTkMessageDialog(ctk.CTkToplevel):
             )
             btn_ok.pack(side="right")
             
+        self.attributes("-alpha", 1.0)
         self.wait_window(self)
         
     def on_ok(self):
@@ -112,6 +114,7 @@ class CTkMessageDialog(ctk.CTkToplevel):
 class CTkInputDialog(ctk.CTkToplevel):
     def __init__(self, parent, title, text):
         super().__init__(parent)
+        self.attributes("-alpha", 0.0)
         self.title(parent.app_name)
         self.geometry("400x200")
         self.resizable(False, False)
@@ -188,6 +191,7 @@ class CTkInputDialog(ctk.CTkToplevel):
         )
         btn_cancel.pack(side="right", padx=5)
         
+        self.attributes("-alpha", 1.0)
         self.wait_window(self)
         
     def on_ok(self):

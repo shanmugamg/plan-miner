@@ -41,8 +41,8 @@ class FileHandlerMixin:
         if self.pdf_doc:
             try:
                 self.pdf_doc.close()
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Error closing PDF document: %s", e)
             self.pdf_doc = None
             
         self.current_page_idx = 0
@@ -198,6 +198,24 @@ class FileHandlerMixin:
         if ext not in [".pdf", ".png", ".jpg", ".jpeg", ".bmp"]:
             self.show_error("Unsupported File", "Supported types: PDF, PNG, JPG, JPEG, BMP.")
             return False
+            
+        # Magic number check
+        try:
+            with open(file_path, "rb") as f:
+                header = f.read(4)
+                if ext == ".pdf" and not header.startswith(b"%PDF"):
+                    self.show_error("Invalid Content", "File extension is PDF but contents do not match.")
+                    return False
+                elif ext in [".png"] and not header.startswith(b"\x89PNG"):
+                    self.show_error("Invalid Content", "File extension is PNG but contents do not match.")
+                    return False
+                elif ext in [".jpg", ".jpeg"] and not header.startswith(b"\xFF\xD8"):
+                    self.show_error("Invalid Content", "File extension is JPG but contents do not match.")
+                    return False
+        except Exception as e:
+            self.show_error("Error Reading File", f"Could not read file contents: {e}")
+            return False
+            
         return True
 
     def reset_to_clean_state(self):
@@ -255,14 +273,14 @@ class FileHandlerMixin:
         if hasattr(self, "on_param_changed"):
             try:
                 self.on_param_changed(None)
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Error calling on_param_changed during reset: %s", e)
                 
         if hasattr(self, "switch_live_preview"):
             try:
                 self.switch_live_preview.deselect()
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Error deselecting live preview during reset: %s", e)
                 
         # Clear crop and mask preview canvases
         if hasattr(self, "canvas_crop"):

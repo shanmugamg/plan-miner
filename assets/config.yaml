@@ -34,7 +34,7 @@ licensing:
   licensed_to: "Internal Testing"
   
   # Number of days the portable software remains valid after its compilation/build date.
-  expiry_days: 60
+  expiry_days: 45
 
 # ------------------------------------------------------------------------------
 # 3. DETECTION THRESHOLDS

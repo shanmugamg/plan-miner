@@ -231,7 +231,7 @@ class LayoutMixin:
 
         # About button — far right
         self.btn_about = ctk.CTkButton(
-            right_group, text="ℹ️ About", width=80, height=28, 
+            right_group, text="ⓘ About", width=80, height=28, 
             fg_color="#6c3483", hover_color="#7d3c98",
             font=ctk.CTkFont(family=self.font_family, size=11, weight="bold"),
             command=self.show_about_dialog
@@ -240,7 +240,7 @@ class LayoutMixin:
 
         # Reset button
         self.btn_reset = ctk.CTkButton(
-            right_group, text="🗑️ Reset", width=80, height=28, 
+            right_group, text="🗑 Reset", width=80, height=28, 
             fg_color="#c0392b", hover_color="#cd6155",
             font=ctk.CTkFont(family=self.font_family, size=11, weight="bold"),
             command=self.reset_to_clean_state

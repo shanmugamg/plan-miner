@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import os
+import collections
 
 class ColorDetectorEngine:
     @staticmethod
@@ -207,10 +207,10 @@ class ColorDetectorEngine:
         for node in candidate_indices:
             if node not in visited:
                 cluster = []
-                queue = [node]
+                queue = collections.deque([node])
                 visited.add(node)
                 while queue:
-                    curr = queue.pop(0)
+                    curr = queue.popleft()
                     cluster.append(curr)
                     for neighbor in adj[curr]:
                         if neighbor not in visited:

@@ -59,8 +59,8 @@ class PlanMinerApp(
         def maximize_window():
             try:
                 self.state("zoomed")
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.warning("Failed to maximize window: %s", e)
         self.after(200, maximize_window)
         
         self.set_app_icon()
@@ -168,8 +168,8 @@ class PlanMinerApp(
             try:
                 with open(build_date_file, 'r') as bf:
                     build_date = datetime.strptime(bf.read().strip(), "%Y-%m-%d")
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Failed to parse build date: %s", e)
         
         if os.path.exists(self.config_path):
             try:

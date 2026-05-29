@@ -57,11 +57,9 @@ def sign_binary(binary_path):
         return
         
     thumbprint = os.environ.get("PLANMINER_SIGN_THUMBPRINT")
-    pfx_pass = os.environ.get("PLANMINER_PFX_PASS")
-    pfx_path = os.path.join("code-sign", "codesign.pfx")
     
-    if not thumbprint and not pfx_pass:
-        log_warn("Neither PLANMINER_SIGN_THUMBPRINT nor PLANMINER_PFX_PASS is set. Skipping signing.")
+    if not thumbprint:
+        log_warn("PLANMINER_SIGN_THUMBPRINT is not set. Skipping signing.")
         return
         
     signtool = None
@@ -83,17 +81,12 @@ def sign_binary(binary_path):
     
     try:
         if thumbprint:
-            # Secure signing via Windows Certificate Store (no CLI password arguments)
+            # Secure signing via Windows Certificate Store
             cmd = [signtool, "sign", "/sha1", thumbprint,
                    "/fd", "SHA256", "/t", "http://timestamp.digicert.com", "/v", os.path.abspath(binary_path)]
         else:
-            # Legacy file-based signing with password
-            log_warn("SECURITY WARNING: Passing password via command line argument can expose credentials to process monitors.")
-            if not os.path.exists(pfx_path):
-                log_info(f"Codesign PFX not found at {pfx_path}. Skipping signing.")
-                return
-            cmd = [signtool, "sign", "/f", os.path.abspath(pfx_path), "/p", pfx_pass,
-                   "/fd", "SHA256", "/t", "http://timestamp.digicert.com", "/v", os.path.abspath(binary_path)]
+            log_warn("No thumbprint provided. Skipping signing.")
+            return
                    
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:

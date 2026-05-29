@@ -6,6 +6,7 @@ from lib.utils import apply_window_icon
 class CTkAboutDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.attributes("-alpha", 0.0)
         self.title(parent.app_name)
         self.geometry("450x360")
         self.resizable(False, False)
@@ -59,7 +60,7 @@ class CTkAboutDialog(ctk.CTkToplevel):
                 lbl_logo.grid(row=0, column=0, pady=(0, 10))
                 logo_row = 1
             except Exception as e:
-                print(f"Error loading logo in about dialog: {e}")
+                parent.logger.warning("Error loading logo in about dialog: %s", e)
                 
         # App Name Label
         lbl_app_name = ctk.CTkLabel(
@@ -109,4 +110,5 @@ class CTkAboutDialog(ctk.CTkToplevel):
         )
         btn_ok.grid(row=2, column=0, pady=(0, 15))
         
+        self.attributes("-alpha", 1.0)
         self.wait_window(self)

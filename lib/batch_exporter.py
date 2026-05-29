@@ -142,6 +142,10 @@ class BatchExporterMixin:
                         import gc
                         gc.collect()
 
+                    # Counting Contract:
+                    # 'visible_count' represents raw detected components in the page.
+                    # 'legend_count' reserves 1 count for the reference template if present.
+                    # 'total' computes the net count of objects actually detected in the wild.
                     legend_count = 1 if visible_count > 0 else 0
                     total = visible_count - legend_count
 

@@ -12,8 +12,8 @@ class PresetManagerMixin:
             try:
                 with open(self.presets_file, 'r') as f:
                     return json.load(f)
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Failed to load presets file: %s", e)
         return {}
 
     def save_preset_dialog(self):
@@ -35,7 +35,7 @@ class PresetManagerMixin:
             _, buffer_mask = cv2.imencode('.png', self.template_info["patch_mask"])
             patch_mask_b64 = base64.b64encode(buffer_mask).decode('utf-8')
         except Exception as e:
-            print(f"Error encoding patch template for preset: {e}")
+            self.logger.warning("Error encoding patch template for preset: %s", e)
 
         self.presets[name] = {
             "lower_bound": self.template_info["lower_bound"],
@@ -90,7 +90,7 @@ class PresetManagerMixin:
                 np_mask = np.frombuffer(dec_mask, dtype=np.uint8)
                 patch_mask = cv2.imdecode(np_mask, cv2.IMREAD_GRAYSCALE)
             except Exception as e:
-                print(f"Error decoding template patch from preset: {e}")
+                self.logger.warning("Error decoding template patch from preset: %s", e)
                 
         if patch_bgr is None or patch_mask is None:
             patch_bgr = np.zeros((90, 90, 3), dtype=np.uint8)
@@ -132,6 +132,22 @@ class PresetManagerMixin:
         for key in required_keys:
             if key not in preset_data:
                 return False
-        if not isinstance(preset_data["lower_bound"], list) or not isinstance(preset_data["upper_bound"], list):
+        
+        # Type validation
+        try:
+            if not isinstance(preset_data["lower_bound"], list) or not isinstance(preset_data["upper_bound"], list):
+                return False
+            if len(preset_data["lower_bound"]) != 3 or len(preset_data["upper_bound"]) != 3:
+                return False
+                
+            float(preset_data["tolerance"])
+            float(preset_data["min_area"])
+            float(preset_data["max_area"])
+            float(preset_data["proximity"])
+            int(preset_data["width"])
+            int(preset_data["height"])
+            int(preset_data["area"])
+        except (ValueError, TypeError):
             return False
+            
         return True
