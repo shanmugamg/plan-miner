@@ -130,7 +130,12 @@ def build():
     
     licensing = cfg.get("licensing", {})
     license_to = licensing.get("licensed_to", "Unknown")
-    expiry = licensing.get("expiry_date", "None")
+    expiry_days = int(licensing.get("expiry_days", 60))
+    
+    from datetime import datetime, timedelta
+    build_date = datetime.now()
+    expiry_date = build_date + timedelta(days=expiry_days)
+    expiry = expiry_date.strftime("%Y-%m-%d")
 
     # Load version
     app_version = "Unknown"
@@ -138,13 +143,18 @@ def build():
         with open(version_file, "r") as f:
             app_version = f.read().strip()
 
+    # Write BUILD_DATE file
+    build_date_file = os.path.join(app_dir, "BUILD_DATE")
+    with open(build_date_file, "w") as f:
+        f.write(build_date.strftime("%Y-%m-%d"))
+
     # PRE-FLIGHT CHECK
     print(f"{CLR_BOLD}{CLR_YELLOW}+-- PRE-FLIGHT CHECK ---------------------------------------+{CLR_RESET}")
     print(f"{CLR_YELLOW}|{CLR_RESET}  Application   : {CLR_BOLD}{CLR_CYAN}{app_name:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
     print(f"{CLR_YELLOW}|{CLR_RESET}  Company       : {CLR_BOLD}{company:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
     print(f"{CLR_YELLOW}|{CLR_RESET}  Version       : {CLR_BOLD}{app_version:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
     print(f"{CLR_YELLOW}|{CLR_RESET}  Licensed To   : {CLR_BOLD}{license_to:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
-    print(f"{CLR_YELLOW}|{CLR_RESET}  Expiry Date   : {CLR_BOLD}{CLR_RED if expiry != 'None' else ''}{expiry:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
+    print(f"{CLR_YELLOW}|{CLR_RESET}  Expiry Date   : {CLR_BOLD}{CLR_RED}{expiry:<38}{CLR_RESET} {CLR_YELLOW}|{CLR_RESET}")
     print(f"{CLR_BOLD}{CLR_YELLOW}+-----------------------------------------------------------+{CLR_RESET}")
 
     # Assets Compliance Verification
@@ -186,6 +196,7 @@ def build():
     add_data_flag = f"{ctk_path}{SEP}customtkinter"
     assets_data = f"assets{SEP}assets"
     version_data = f"VERSION{SEP}."
+    build_date_data = f"BUILD_DATE{SEP}."
     icon_path = os.path.join("assets", "logo", "favicon.ico")
     main_script = "app_gui.py"
 
@@ -194,7 +205,7 @@ def build():
 
     cmd = [
         "pyinstaller", "--onefile", "--noconsole", "--noconfirm",
-        f"--add-data={add_data_flag}", f"--add-data={assets_data}", f"--add-data={version_data}",
+        f"--add-data={add_data_flag}", f"--add-data={assets_data}", f"--add-data={version_data}", f"--add-data={build_date_data}",
         f"--icon={icon_path}", "--name=PlanMiner"
     ]
     for exc in exclusions:

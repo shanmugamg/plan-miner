@@ -122,19 +122,13 @@ class PlanMinerApp(
         self.check_expiry()
 
     def check_expiry(self):
-        from datetime import datetime
-        if self.expiry_date and self.expiry_date != "None":
-            try:
-                exp_date = datetime.strptime(self.expiry_date, "%Y-%m-%d").date()
-                if datetime.now().date() > exp_date:
-                    self.show_error(
-                        "License Expired", 
-                        f"This software license has expired on {self.expiry_date}.\n\nPlease contact support or renew the license key to continue using the application."
-                    )
-                    self.destroy()
-                    sys.exit(0)
-            except Exception as e:
-                self.logger.warning("Failed to check license expiry: %s", e)
+        if hasattr(self, "days_left") and self.days_left <= 0:
+            self.show_error(
+                "License Expired", 
+                f"This software license has expired ({self.days_left} days left).\n\nPlease contact support or renew the license key to continue using the application."
+            )
+            self.destroy()
+            sys.exit(0)
 
     # ── CUSTOM DIALOG HELPER WRAPPERS ────────────────────────────────────────
     def show_info(self, title, message):
@@ -158,12 +152,24 @@ class PlanMinerApp(
         self.copyright_notice = "Copyright © 2026. All rights reserved."
         self.licensed_to = "Internal Testing"
         self.expiry_date = "2027-12-31"
+        self.days_left = 60
         
         self.def_tolerance = 0.5
         self.def_min_area = 0.2
         self.def_max_area = 4.0
         self.def_proximity = 100.0
         self.app_version = "0.3.0"
+        
+        # Load build date from package or fallback to current system time
+        from datetime import datetime, timedelta
+        build_date_file = get_resource_path("BUILD_DATE")
+        build_date = datetime.now()
+        if os.path.exists(build_date_file):
+            try:
+                with open(build_date_file, 'r') as bf:
+                    build_date = datetime.strptime(bf.read().strip(), "%Y-%m-%d")
+            except:
+                pass
         
         if os.path.exists(self.config_path):
             try:
@@ -179,7 +185,11 @@ class PlanMinerApp(
                         
                         licensing = cfg.get("licensing", {})
                         self.licensed_to = licensing.get("licensed_to", self.licensed_to)
-                        self.expiry_date = licensing.get("expiry_date", self.expiry_date)
+                        
+                        expiry_days = int(licensing.get("expiry_days", 60))
+                        exp_date = build_date + timedelta(days=expiry_days)
+                        self.expiry_date = exp_date.strftime("%Y-%m-%d")
+                        self.days_left = (exp_date.date() - datetime.now().date()).days
                         
                         version_file = branding.get("version_file", "VERSION")
                         version_file_path = get_resource_path(version_file)

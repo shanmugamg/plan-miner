@@ -88,7 +88,7 @@ class CTkAboutDialog(ctk.CTkToplevel):
         lbl_license.grid(row=0, column=0, padx=10, pady=(8, 2), sticky="w")
         
         lbl_expiry = ctk.CTkLabel(
-            info_box, text=f"Expiry Date: {parent.expiry_date}", 
+            info_box, text=f"Expiry Date: {parent.expiry_date} ({parent.days_left} days left)", 
             font=ctk.CTkFont(family=parent.font_family, size=12)
         )
         lbl_expiry.grid(row=1, column=0, padx=10, pady=(2, 8), sticky="w")
