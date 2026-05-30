@@ -82,3 +82,6 @@ To replace fragile ad-hoc testing, PlanMiner uses a standard `pytest` testing su
 - **Enterprise Security Overrides**: Log files are sanitized with SHA-256 hashes of input filenames to comply with PII data exposure laws.
 - **Proximity Slider Auto-Calibration**: Because proximity clustering is highly sensitive to object size, clicking a target symbol auto-calibrates the proximity slider value to exactly `1.25x` of the extracted symbol's diameter.
 - **Visual Presets Recovery**: When storing custom templates inside presets, we serialize both the target patch and the target mask as base64-encoded PNG strings. When the preset is loaded, these are decoded and restored to display in the Selected Object Preview frame.
+- **Page-Indexed State Persistence**: To prevent manual overrides from resetting when users change pages, state is tracked in page-indexed dictionaries (`page_manual_added`, `page_manual_deleted_ids`, `page_detections`) rather than flat lists. Navigating pages preserves these edits, and the batch exporter processes them per-page.
+- **Legend & Added Objects CSV Columns**: Built a configurable `Legend` toggle switch and maintained default values via `config.yaml`. The CSV export aligns columns strictly to `Page, File_Path, Detected_Object, Added_Object, Legend_Count, Total`.
+

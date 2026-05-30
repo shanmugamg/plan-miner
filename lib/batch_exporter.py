@@ -100,38 +100,32 @@ class BatchExporterMixin:
                         max_area_scale=self.slider_max_area.get()
                     )
 
-                    visible_count = len(dets)
+                    page_deleted = self.page_manual_deleted_ids.get(idx, set())
+                    page_added = self.page_manual_added.get(idx, [])
 
-                    if idx == self.current_page_idx:
-                        visible_dets = [d for d in dets if d["id"] not in self.manual_deleted_ids]
-                        visible_count = len(visible_dets) + len(self.manual_added)
+                    visible_dets = [d for d in dets if d["id"] not in page_deleted]
+                    visible_count = len(visible_dets) + len(page_added)
 
-                        vis_img = img_bgr.copy()
+                    # Cache detections back to page dictionary
+                    self.page_detections[idx] = dets
 
-                        for det in visible_dets:
-                            x, y, w, h = det["bbox"]
-                            text_str = f"#{det['id']}"
-                            (tw, th), _ = cv2.getTextSize(text_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
-                            cv2.rectangle(vis_img, (x, y), (x + w, y + h), (96, 204, 46), 2)
-                            cv2.rectangle(vis_img, (x, y - 18), (x + tw + 4, y), (96, 204, 46), -1)
-                            cv2.putText(vis_img, text_str, (x + 2, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 1, cv2.LINE_AA)
+                    vis_img = img_bgr.copy()
 
-                        for midx, man in enumerate(self.manual_added):
-                            x, y, w, h = man["bbox"]
-                            text_str = f"+#{midx+1}"
-                            (tw, th), _ = cv2.getTextSize(text_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
-                            cv2.rectangle(vis_img, (x, y), (x + w, y + h), (255, 229, 0), 2)
-                            cv2.rectangle(vis_img, (x, y - 18), (x + tw + 4, y), (255, 229, 0), -1)
-                            cv2.putText(vis_img, text_str, (x + 2, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 1, cv2.LINE_AA)
-                    else:
-                        vis_img = img_bgr.copy()
-                        for det in dets:
-                            x, y, w, h = det["bbox"]
-                            text_str = f"#{det['id']}"
-                            (tw, th), _ = cv2.getTextSize(text_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
-                            cv2.rectangle(vis_img, (x, y), (x + w, y + h), (96, 204, 46), 2)
-                            cv2.rectangle(vis_img, (x, y - 18), (x + tw + 4, y), (96, 204, 46), -1)
-                            cv2.putText(vis_img, text_str, (x + 2, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 1, cv2.LINE_AA)
+                    for det in visible_dets:
+                        x, y, w, h = det["bbox"]
+                        text_str = f"#{det['id']}"
+                        (tw, th), _ = cv2.getTextSize(text_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+                        cv2.rectangle(vis_img, (x, y), (x + w, y + h), (96, 204, 46), 2)
+                        cv2.rectangle(vis_img, (x, y - 18), (x + tw + 4, y), (96, 204, 46), -1)
+                        cv2.putText(vis_img, text_str, (x + 2, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 1, cv2.LINE_AA)
+
+                    for midx, man in enumerate(page_added):
+                        x, y, w, h = man["bbox"]
+                        text_str = f"+#{midx+1}"
+                        (tw, th), _ = cv2.getTextSize(text_str, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+                        cv2.rectangle(vis_img, (x, y), (x + w, y + h), (60, 76, 231), 2)
+                        cv2.rectangle(vis_img, (x, y - 18), (x + tw + 4, y), (60, 76, 231), -1)
+                        cv2.putText(vis_img, text_str, (x + 2, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 0), 1, cv2.LINE_AA)
 
                     page_img_path = os.path.join(run_output_dir, f"Page_{idx + 1:03d}_Detected.png")
                     cv2.imwrite(page_img_path, vis_img)
@@ -146,31 +140,62 @@ class BatchExporterMixin:
                     # 'visible_count' represents raw detected components in the page.
                     # 'legend_count' reserves 1 count for the reference template if present.
                     # 'total' computes the net count of objects actually detected in the wild.
-                    legend_count = 1 if visible_count > 0 else 0
-                    total = visible_count - legend_count
+                    has_legend = getattr(self, "legend_var", None) is None or self.legend_var.get()
+                    
+                    detected_count = len(visible_dets)
+                    added_count = len(page_added)
+                    added_str = str(added_count) if added_count > 0 else ""
 
-                    csv_rows.append({
-                        "Page": idx + 1,
-                        "File Path": os.path.basename(page_img_path),
-                        "Count": visible_count,
-                        "Legend_Count": legend_count,
-                        "Total": total
-                    })
+                    if has_legend:
+                        legend_count = 1 if (detected_count + added_count) > 0 else 0
+                        total = detected_count + added_count - legend_count
+                        csv_rows.append({
+                            "Page": idx + 1,
+                            "File_Path": os.path.basename(page_img_path),
+                            "Detected_Object": detected_count,
+                            "Added_Object": added_str,
+                            "Legend_Count": legend_count,
+                            "Total": total
+                        })
+                    else:
+                        total = detected_count + added_count
+                        csv_rows.append({
+                            "Page": idx + 1,
+                            "File_Path": os.path.basename(page_img_path),
+                            "Detected_Object": detected_count,
+                            "Added_Object": added_str,
+                            "Total": total
+                        })
 
-                total_count = sum(row["Count"] for row in csv_rows)
-                total_legend = sum(row["Legend_Count"] for row in csv_rows)
+                total_detected = sum(row["Detected_Object"] for row in csv_rows)
                 total_overall = sum(row["Total"] for row in csv_rows)
                 
-                csv_rows.append({
-                    "Page": "SUM",
-                    "File Path": "",
-                    "Count": total_count,
-                    "Legend_Count": total_legend,
-                    "Total": total_overall
-                })
+                total_added = sum(int(row["Added_Object"]) for row in csv_rows if row["Added_Object"] != "")
+                total_added_str = str(total_added) if total_added > 0 else ""
+
+                if has_legend:
+                    total_legend = sum(row["Legend_Count"] for row in csv_rows)
+                    csv_rows.append({
+                        "Page": "SUM",
+                        "File_Path": "",
+                        "Detected_Object": total_detected,
+                        "Added_Object": total_added_str,
+                        "Legend_Count": total_legend,
+                        "Total": total_overall
+                    })
+                    fieldnames = ["Page", "File_Path", "Detected_Object", "Added_Object", "Legend_Count", "Total"]
+                else:
+                    csv_rows.append({
+                        "Page": "SUM",
+                        "File_Path": "",
+                        "Detected_Object": total_detected,
+                        "Added_Object": total_added_str,
+                        "Total": total_overall
+                    })
+                    fieldnames = ["Page", "File_Path", "Detected_Object", "Added_Object", "Total"]
 
                 with open(csv_path, 'w', newline='') as f:
-                    writer = csv.DictWriter(f, fieldnames=["Page", "File Path", "Count", "Legend_Count", "Total"])
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows(csv_rows)
 

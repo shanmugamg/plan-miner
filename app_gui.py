@@ -89,9 +89,9 @@ class PlanMinerApp(
         
         self.template_info = None  
         self.select_click_coords = None
-        self.detections = []       
-        self.manual_added = []     
-        self.manual_deleted_ids = set() 
+        self.page_detections = {}
+        self.page_manual_added = {}
+        self.page_manual_deleted_ids = {} 
         
         self.sidebar_visible = True
         self.select_mode_active = False
@@ -189,6 +189,7 @@ class PlanMinerApp(
         self.def_min_area = 0.2
         self.def_max_area = 4.0
         self.def_proximity = 100.0
+        self.def_legend = True
         self.app_version = "0.5.3"
         
         if os.path.exists(self.config_path):
@@ -220,6 +221,7 @@ class PlanMinerApp(
                         self.def_min_area = float(thresholds.get("min_area", self.def_min_area))
                         self.def_max_area = float(thresholds.get("max_area", self.def_max_area))
                         self.def_proximity = float(thresholds.get("proximity", self.def_proximity))
+                        self.def_legend = bool(thresholds.get("legend", self.def_legend))
             except Exception as e:
                 self.logger.warning("Failed to load config.yaml: %s", e)
 
@@ -261,6 +263,36 @@ class PlanMinerApp(
         if self.ask_yes_no("Confirm Exit", "Are you sure you want to close the application?"):
             self.destroy()
             sys.exit(0)
+
+    @property
+    def detections(self):
+        if self.current_page_idx not in self.page_detections:
+            self.page_detections[self.current_page_idx] = []
+        return self.page_detections[self.current_page_idx]
+
+    @detections.setter
+    def detections(self, value):
+        self.page_detections[self.current_page_idx] = value
+
+    @property
+    def manual_added(self):
+        if self.current_page_idx not in self.page_manual_added:
+            self.page_manual_added[self.current_page_idx] = []
+        return self.page_manual_added[self.current_page_idx]
+
+    @manual_added.setter
+    def manual_added(self, value):
+        self.page_manual_added[self.current_page_idx] = value
+
+    @property
+    def manual_deleted_ids(self):
+        if self.current_page_idx not in self.page_manual_deleted_ids:
+            self.page_manual_deleted_ids[self.current_page_idx] = set()
+        return self.page_manual_deleted_ids[self.current_page_idx]
+
+    @manual_deleted_ids.setter
+    def manual_deleted_ids(self, value):
+        self.page_manual_deleted_ids[self.current_page_idx] = value
 
 if __name__ == "__main__":
     app = PlanMinerApp()

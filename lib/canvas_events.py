@@ -61,9 +61,9 @@ class CanvasEventsMixin:
                 self.template_info = ColorDetectorEngine.extract_template_from_click(img_bgr, ix, iy)
                 self.select_click_coords = (ix, iy)
                 self.update_previews()
-                self.detections = []
-                self.manual_added = []
-                self.manual_deleted_ids = set()
+                self.page_detections = {}
+                self.page_manual_added = {}
+                self.page_manual_deleted_ids = {}
                 self.live_mask = None
                 self.live_mask_signature = None
                 self.live_overlay_rgb = None

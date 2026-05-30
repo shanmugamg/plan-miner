@@ -232,8 +232,8 @@ class CanvasNavigationMixin:
             man_text = f"+#{idx+1}"
             lbl_w = len(man_text) * 8 + 10
             
-            self.canvas.create_rectangle(sx, sy, sx + sw, sy + sh, outline="#00e5ff", width=2, tags="detection_box")
-            self.canvas.create_rectangle(sx, sy - 15, sx + lbl_w, sy, fill="#00e5ff", width=0, tags="detection_label")
+            self.canvas.create_rectangle(sx, sy, sx + sw, sy + sh, outline="#e74c3c", width=2, tags="detection_box")
+            self.canvas.create_rectangle(sx, sy - 15, sx + lbl_w, sy, fill="#e74c3c", width=0, tags="detection_label")
             self.canvas.create_text(sx + 3, sy - 8, text=man_text, fill="#000000", font=("Arial", 9, "bold"), anchor="w", tags="detection_text")
             
         # Draw target selection click marker

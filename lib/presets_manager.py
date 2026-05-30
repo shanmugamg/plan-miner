@@ -117,9 +117,9 @@ class PresetManagerMixin:
         
         self.on_param_changed(None)
         
-        self.detections = []
-        self.manual_added = []
-        self.manual_deleted_ids = set()
+        self.page_detections = {}
+        self.page_manual_added = {}
+        self.page_manual_deleted_ids = {}
         self.set_status(f"Preset '{name}' applied. Click 'Run Object Detection' to scan.")
         self.redraw_canvas()
         self.logger.info("preset_applied name=%s", name)

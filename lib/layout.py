@@ -193,15 +193,22 @@ class LayoutMixin:
         )
         self.btn_batch.grid(row=10, column=0, padx=12, pady=5, sticky="ew")
         
+        self.legend_var = tk.BooleanVar(value=self.def_legend)
+        self.switch_legend = ctk.CTkSwitch(
+            self.sidebar, text="Legend", variable=self.legend_var,
+            font=ctk.CTkFont(family=self.font_family, size=12)
+        )
+        self.switch_legend.grid(row=11, column=0, padx=12, pady=10, sticky="w")
+        
         self.lbl_count_stats = ctk.CTkLabel(
             self.sidebar, text="Count: 0 objects", 
             font=ctk.CTkFont(family=self.font_family, size=16, weight="bold")
         )
-        self.lbl_count_stats.grid(row=11, column=0, padx=12, pady=10, sticky="w")
+        self.lbl_count_stats.grid(row=12, column=0, padx=12, pady=10, sticky="w")
         
         # Footer — status only (About moved to top bar)
         footer_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        footer_frame.grid(row=12, column=0, padx=12, pady=(15, 10), sticky="ew")
+        footer_frame.grid(row=13, column=0, padx=12, pady=(15, 10), sticky="ew")
         footer_frame.grid_columnconfigure(0, weight=1)
         
         self.lbl_status = ctk.CTkLabel(
@@ -227,6 +234,13 @@ class LayoutMixin:
             command=self.toggle_sidebar
         )
         self.btn_toggle_sidebar.pack(side=tk.LEFT)
+
+        self.lbl_nav_tip = ctk.CTkLabel(
+            self.header_bar, text="Right Click to ADD, Left Click to REMOVE",
+            font=ctk.CTkFont(family=self.font_family, size=11, weight="bold"),
+            text_color="lime"
+        )
+        self.lbl_nav_tip.pack(side=tk.LEFT, padx=(10, 0))
 
         # Right group: all actions grouped together
         right_group = ctk.CTkFrame(self.header_bar, fg_color="transparent")

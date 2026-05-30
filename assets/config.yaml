@@ -54,3 +54,6 @@ thresholds:
   
   # Maximum Euclidean pixel distance below which separate shapes are grouped/merged.
   proximity: 100.0
+  
+  # Default state for the Legend option in CSV reports (true = ON, false = OFF).
+  legend: true

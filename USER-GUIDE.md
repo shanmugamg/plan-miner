@@ -22,7 +22,7 @@ PlanMiner is a standalone Windows desktop application for high-precision, color-
 
 ## 2. Interface Layout
 The application layout is divided into three key sections:
-*   **Left Sidebar Panel**: Hosts drawing loading controls, detection parameter sliders (Tolerance, Proximity, Size Scales), target previews, preset profile managers, and batch exporting triggers.
+*   **Left Sidebar Panel**: Hosts drawing loading controls, detection parameter sliders (Color Tolerance, Object Size Filters, Proximity Clustering), target previews, preset profile managers, and batch exporting triggers.
 *   **Top Action Bar**: Provides view navigation controls (Sidebar toggle, Zoom In/Out, Fit to screen, Hand Panning toggle, Reset layout, and the About info button).
 *   **Main Workspace Canvas**: The interactive display where you view drawings, click target objects, see live detection overlays, and edit bounding boxes.
 
@@ -46,9 +46,10 @@ The application layout is divided into three key sections:
 
 ### Step 3: Calibrate Parameter Sliders
 If some matching symbols are missed or if wrong objects are highlighted, adjust the sliders in the sidebar:
-*   **Color Tolerance**: Widens or narrows the HSV color extraction band. Drag it right if symbols are slightly different shades (due to scanning noise/gradients), or drag it left to restrict matches to a very specific color.
-*   **Min / Max Area Scale**: Constrains the size of detected candidates relative to the target symbol. If larger or smaller objects of the same color are showing up as matches, adjust these sliders to filter them out.
-*   **Proximity Cluster**: Controls how close separate pixels must be to be grouped as a single symbol. (This defaults to 1.25x the target's physical size, which is optimal for most drawings).
+*   **Color Tolerance (Range Extension)**: Widens or narrows the HSV color extraction band. Drag it right if symbols are slightly different shades (due to scanning noise/gradients), or drag it left to restrict matches to a very specific color.
+*   **Min Object Size Filter**: Constrains the minimum size of detected candidates relative to the target symbol. Adjust this slider to filter out smaller objects of the same color.
+*   **Max Object Size Filter**: Constrains the maximum size of detected candidates relative to the target symbol. Adjust this slider to filter out larger objects of the same color.
+*   **Proximity Clustering**: Controls how close separate pixels must be (in pixels) to be grouped as a single symbol. When a target is selected, this is auto-calibrated to match the physical diameter of the clicked object.
 
 ---
 
@@ -56,7 +57,7 @@ If some matching symbols are missed or if wrong objects are highlighted, adjust 
 Even with perfect calibration, text overlays or noisy scans may cause minor detection discrepancies. PlanMiner lets you modify results directly on the canvas:
 
 *   **Remove False Positives (Left-Click)**: Simply left-click on any highlighted detection box to delete it from the current count.
-*   **Insert Missing Symbols (Right-Click)**: If a symbol was missed (e.g., it is obscured by lines or text), right-click directly on the symbol's center in the canvas to manually insert a new detection box.
+*   **Insert Missing Symbols (Right-Click)**: If a symbol was missed (e.g., it is obscured by lines or text), right-click directly on the symbol's center in the canvas to manually insert a new detection box (highlighted in red).
 *   *Note*: The current count label on the screen updates dynamically to reflect your manual overrides.
 
 ---
@@ -72,7 +73,7 @@ Navigating high-resolution drawings is optimized to be fluid:
 ---
 
 ## 6. Saving and Reusing Presets
-Once you have calibrated a symbol's color tolerance and area scales, save them to avoid repeating the configuration:
+Once you have calibrated a symbol's parameters, save them to avoid repeating the configuration:
 1. Go to the **Presets** section in the sidebar.
 2. Enter a descriptive name (e.g., "Red Fire Extinguisher") and click **Save Preset**.
 3. The preset will be added to the drop-down menu, storing the sliders and a visual image preview of the target.
@@ -83,7 +84,16 @@ Once you have calibrated a symbol's color tolerance and area scales, save them t
 ## 7. Running Batch Exports
 To count symbols across all pages of a multi-page document:
 1. Once you are satisfied with your detection parameters on the active page, click the green **Batch Scan & Export** button in the sidebar.
-2. The progress bar will update as PlanMiner scans each page using your settings.
-3. Once complete, navigate to the `output/` folder located in the project directory:
-    *   **CSV Summary**: Contains page-by-page and total counts, complete with symbol coordinates and areas.
-    *   **Visual Overlays**: Annotated PDF or image pages showing red outline boxes highlighting every detected object.
+2. Under the export button, toggle the **Legend** switch:
+    *   **Legend ON (Default)**: Exports a CSV containing the `Legend_Count` column and subtracts 1 from the raw page count to exclude the reference legend/template item.
+    *   **Legend OFF**: Removes the `Legend_Count` column from the CSV summary. The total counts will reflect the raw detected objects without subtracting the reference template.
+3. The progress bar will update as PlanMiner scans each page using your settings.
+4. Once complete, navigate to the selected output folder:
+    *   **CSV Summary**: Generates a page-by-page table containing:
+        *   `Page`: The page number index.
+        *   `File_Path`: The name of the annotated result file.
+        *   `Detected_Object`: Counts matching components discovered automatically by the model.
+        *   `Added_Object`: Counts manually placed boxes (remains blank if none were added on that page).
+        *   `Legend_Count` (Only when Legend toggle is ON): Reserves `1` count if objects were found to exclude the legend template.
+        *   `Total`: The calculated net sum (either `Detected_Object + Added_Object - Legend_Count` or `Detected_Object + Added_Object`).
+    *   **Visual Overlays**: Annotated PDF or image pages showing outline boxes highlighting every detected object.

@@ -45,6 +45,10 @@ class FileHandlerMixin:
                 self.logger.warning("Error closing PDF document: %s", e)
             self.pdf_doc = None
             
+        self.page_detections = {}
+        self.page_manual_added = {}
+        self.page_manual_deleted_ids = {}
+            
         self.current_page_idx = 0
         self.dpi = int(self.dpi_var.get())
         
@@ -79,9 +83,6 @@ class FileHandlerMixin:
         
         self.current_page_idx = index
         self.lbl_page.configure(text=f"Page {index + 1} / {self.total_pages}")
-        
-        self.manual_added = []
-        self.manual_deleted_ids = set()
         
         if self.doc_pages[index] is not None:
             self.display_rendered_page(index)
@@ -150,9 +151,6 @@ class FileHandlerMixin:
         self.reset_zoom()
         
         self.select_click_coords = None
-        self.detections = []
-        self.manual_added = []
-        self.manual_deleted_ids = set()
         self.live_mask = None
         self.live_mask_signature = None
         self.live_overlay_rgb = None
@@ -238,9 +236,9 @@ class FileHandlerMixin:
         
         self.template_info = None
         self.select_click_coords = None
-        self.detections = []
-        self.manual_added = []
-        self.manual_deleted_ids = set()
+        self.page_detections = {}
+        self.page_manual_added = {}
+        self.page_manual_deleted_ids = {}
         
         self.live_mask = None
         self.live_mask_signature = None
@@ -281,6 +279,17 @@ class FileHandlerMixin:
                 self.switch_live_preview.deselect()
             except Exception as e:
                 self.logger.warning("Error deselecting live preview during reset: %s", e)
+
+        if hasattr(self, "legend_var"):
+            self.legend_var.set(self.def_legend)
+        if hasattr(self, "switch_legend"):
+            try:
+                if self.def_legend:
+                    self.switch_legend.select()
+                else:
+                    self.switch_legend.deselect()
+            except Exception as e:
+                self.logger.warning("Error resetting legend switch during reset: %s", e)
                 
         # Clear crop and mask preview canvases
         if hasattr(self, "canvas_crop"):
