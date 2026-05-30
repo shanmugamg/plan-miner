@@ -6,7 +6,7 @@ from lib.utils import apply_window_icon
 class CTkAboutDialog(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.attributes("-alpha", 0.0)
+        self.withdraw()
         self.title(parent.app_name)
         self.geometry("450x360")
         self.resizable(False, False)
@@ -116,5 +116,6 @@ class CTkAboutDialog(ctk.CTkToplevel):
         )
         btn_ok.grid(row=2, column=0, pady=(0, 15))
         
+        self.deiconify()
         self.attributes("-alpha", 1.0)
         self.wait_window(self)

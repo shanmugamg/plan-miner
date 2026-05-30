@@ -9,8 +9,9 @@ PlanMiner is a standalone Windows desktop application built with **CustomTkinter
 - **Responsive Zooming**: Viewport Cropping computes fast preview scaling with deferred high-quality resampling keeping zoom controls entirely lag-free.
 - **Live Mask Overlay**: Real-time translucent overlay showing selected colors directly on the canvas as you adjust sliders.
 - **Interactive Box Overrides**: 
-  - Left-click on a box to delete false positives.
-  - Right-click on the canvas to manually place new detection boxes (highlighted in red).
+  - Activate Add Box Mode (green button) to insert new boxes (highlighted in red) with a left-click.
+  - Activate Delete Box Mode (red button) to remove existing boxes with a left-click.
+  - Right-click operations on the canvas have no action.
 - **DPI-Aware PDF Rendering**: Directly renders PDF pages at customizable resolutions (150, 300, 450, 600 DPI) using **PyMuPDF** (no external Poppler dependencies required).
 - **Settings Profiles**: Save settings and HSV boundary calibrations as profiles/presets (saved in `assets/presets/presets.json` with base64-encoded visual target previews) to reuse them across files.
 - **Batch Exporting**: Scans all pages of a loaded document and exports a summary CSV (with fields `Page`, `File_Path`, `Detected_Object`, `Added_Object`, `Legend_Count` (optional), and `Total`) alongside highlighted, annotated drawings. Includes a sidebar **Legend** toggle to exclude/include the reference template subtractive offset.

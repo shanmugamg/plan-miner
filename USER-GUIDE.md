@@ -1,4 +1,4 @@
-# PlanMiner User Guide (v0.5.3)
+# PlanMiner User Guide (v0.5.6)
 
 Welcome to **PlanMiner**! This guide is designed to help new users get started with loading drawings, auto-calibrating color selectors, executing high-precision object counts, and exporting results.
 
@@ -54,11 +54,11 @@ If some matching symbols are missed or if wrong objects are highlighted, adjust 
 ---
 
 ## 4. Interactive Detection Adjustments
-Even with perfect calibration, text overlays or noisy scans may cause minor detection discrepancies. PlanMiner lets you modify results directly on the canvas:
+Even with perfect calibration, text overlays or noisy scans may cause minor detection discrepancies. PlanMiner lets you modify results directly on the canvas using toolbar modes:
 
-*   **Remove False Positives (Left-Click)**: Simply left-click on any highlighted detection box to delete it from the current count.
-*   **Insert Missing Symbols (Right-Click)**: If a symbol was missed (e.g., it is obscured by lines or text), right-click directly on the symbol's center in the canvas to manually insert a new detection box (highlighted in red).
-*   *Note*: The current count label on the screen updates dynamically to reflect your manual overrides.
+*   **Add Box Mode**: Click the green Add tool icon in the top header. With this mode active, left-click anywhere on the canvas to manually insert a new detection box (highlighted in red).
+*   **Delete Box Mode**: Click the red Delete tool icon in the top header. With this mode active, left-click on any highlighted box on the canvas to remove it.
+*   *Note*: The current count label updates dynamically. Under these modes, left-click performs the selected task and right-click has no action.
 
 ---
 

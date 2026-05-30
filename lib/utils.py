@@ -53,3 +53,48 @@ def apply_window_icon(window, ico_path, delay_ms=50):
     _apply()
     window.after(delay_ms, _apply)
     window.after(delay_ms * 4, _apply)
+
+def load_svg_icon(name, size=(20, 20)):
+    path = get_resource_path(os.path.join("assets", "icons", f"{name}.svg"))
+    if not os.path.exists(path):
+        return None
+    import fitz
+    import customtkinter as ctk
+    doc = fitz.open(path)
+    page = doc[0]
+    rect = page.rect
+    w, h = rect.width, rect.height
+    scale_x = size[0] / w
+    scale_y = size[1] / h
+    matrix = fitz.Matrix(scale_x, scale_y)
+    pix = page.get_pixmap(matrix=matrix, alpha=True)
+    img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples)
+    return ctk.CTkImage(light_image=img, dark_image=img, size=size)
+
+class ToolTip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tip_window = None
+        widget.bind("<Enter>", self.show_tip)
+        widget.bind("<Leave>", self.hide_tip)
+
+    def show_tip(self, event=None):
+        if self.tip_window or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 5
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        self.tip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#2c3e50", foreground="#ffffff",
+                         relief=tk.SOLID, borderwidth=1,
+                         font=("Arial", 9, "normal"), padx=6, pady=3)
+        label.pack(ipadx=1)
+
+    def hide_tip(self, event=None):
+        tw = self.tip_window
+        self.tip_window = None
+        if tw:
+            tw.destroy()

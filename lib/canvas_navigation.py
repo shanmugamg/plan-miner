@@ -88,14 +88,18 @@ class CanvasNavigationMixin:
             return
         self.zoom_window_active = not self.zoom_window_active
         if self.zoom_window_active:
-            self.btn_zoom_window.configure(fg_color="#d35400", text="🔍 Click-Drag Box")
+            self.btn_zoom_window.configure(fg_color="#d35400")
             self.set_status("Drag a box on the canvas to zoom into that region.")
             if self.select_mode_active:
                 self.toggle_select_mode()
             if self.mouse_pan_active:
                 self.toggle_mouse_pan()
+            if getattr(self, "add_mode_active", False):
+                self.toggle_add_mode()
+            if getattr(self, "remove_mode_active", False):
+                self.toggle_remove_mode()
         else:
-            self.btn_zoom_window.configure(fg_color="#b7770d", text="🔍 Box Zoom")
+            self.btn_zoom_window.configure(fg_color="#b7770d")
             self.set_status("Box Zoom off.")
 
     def on_pan_start(self, event):

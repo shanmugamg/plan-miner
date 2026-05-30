@@ -302,13 +302,21 @@ class FileHandlerMixin:
         if hasattr(self, "btn_select_target"):
             self.btn_select_target.configure(text="🎯 Click to Select Target Object", fg_color="#d35400")
             
+        self.add_mode_active = False
+        if hasattr(self, "btn_obj_add"):
+            self.btn_obj_add.configure(fg_color="#2c3e50", hover_color="#34495e")
+            
+        self.remove_mode_active = False
+        if hasattr(self, "btn_obj_remove"):
+            self.btn_obj_remove.configure(fg_color="#2c3e50", hover_color="#34495e")
+
         self.mouse_pan_active = False
         if hasattr(self, "btn_mouse_pan"):
-            self.btn_mouse_pan.configure(fg_color="#138d75", text="🖐 Pan")
+            self.btn_mouse_pan.configure(fg_color="#138d75")
             
         self.zoom_window_active = False
         if hasattr(self, "btn_zoom_window"):
-            self.btn_zoom_window.configure(fg_color="#b7770d", text="🔍 Box Zoom")
+            self.btn_zoom_window.configure(fg_color="#b7770d")
             
         # Clear main canvas
         self.canvas.delete("all")

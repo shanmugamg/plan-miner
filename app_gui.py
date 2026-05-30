@@ -95,6 +95,8 @@ class PlanMinerApp(
         
         self.sidebar_visible = True
         self.select_mode_active = False
+        self.add_mode_active = False
+        self.remove_mode_active = False
         self.zoom_window_active = False
         self.zoom_box_start = None
         self.mouse_pan_active = False

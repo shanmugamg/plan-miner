@@ -5,18 +5,72 @@ from PIL import Image, ImageTk
 from lib.detector_engine import ColorDetectorEngine
 
 class CanvasEventsMixin:
+    def toggle_add_mode(self):
+        if self.total_pages == 0:
+            self.show_warning("Warning", "Please load a PDF or Image document first.")
+            return
+        if self.template_info is None:
+            self.show_warning("Warning", "Please click/select a target object first.")
+            return
+            
+        self.add_mode_active = not self.add_mode_active
+        if self.add_mode_active:
+            self.btn_obj_add.configure(fg_color="#27ae60", hover_color="#27ae60")
+            self.set_status("Add Mode active. Left-click canvas to place new boxes.")
+            # Deactivate conflicting modes
+            if getattr(self, "remove_mode_active", False):
+                self.toggle_remove_mode()
+            if self.mouse_pan_active:
+                self.toggle_mouse_pan()
+            if self.zoom_window_active:
+                self.toggle_zoom_window_mode()
+            if self.select_mode_active:
+                self.toggle_select_mode()
+        else:
+            self.btn_obj_add.configure(fg_color="#2c3e50", hover_color="#34495e")
+            self.set_status("Add Mode off.")
+
+    def toggle_remove_mode(self):
+        if self.total_pages == 0:
+            self.show_warning("Warning", "Please load a PDF or Image document first.")
+            return
+        if self.template_info is None:
+            self.show_warning("Warning", "Please click/select a target object first.")
+            return
+            
+        self.remove_mode_active = not self.remove_mode_active
+        if self.remove_mode_active:
+            self.btn_obj_remove.configure(fg_color="#e74c3c", hover_color="#e74c3c")
+            self.set_status("Remove Mode active. Left-click canvas boxes to delete them.")
+            # Deactivate conflicting modes
+            if getattr(self, "add_mode_active", False):
+                self.toggle_add_mode()
+            if self.mouse_pan_active:
+                self.toggle_mouse_pan()
+            if self.zoom_window_active:
+                self.toggle_zoom_window_mode()
+            if self.select_mode_active:
+                self.toggle_select_mode()
+        else:
+            self.btn_obj_remove.configure(fg_color="#2c3e50", hover_color="#34495e")
+            self.set_status("Remove Mode off.")
+
     def toggle_mouse_pan(self):
         self.mouse_pan_active = not self.mouse_pan_active
         if self.mouse_pan_active:
-            self.btn_mouse_pan.configure(fg_color="#d35400", text="🖐 Panning")
+            self.btn_mouse_pan.configure(fg_color="#d35400")
             self.set_status("Mouse Pan active. Left-click drag to pan.")
             # Deactivate conflicting modes
             if self.select_mode_active:
                 self.toggle_select_mode()
             if self.zoom_window_active:
                 self.toggle_zoom_window_mode()
+            if getattr(self, "add_mode_active", False):
+                self.toggle_add_mode()
+            if getattr(self, "remove_mode_active", False):
+                self.toggle_remove_mode()
         else:
-            self.btn_mouse_pan.configure(fg_color="#138d75", text="🖐 Pan")
+            self.btn_mouse_pan.configure(fg_color="#138d75")
             self.set_status("Mouse Pan off.")
 
     def toggle_select_mode(self):
@@ -32,6 +86,10 @@ class CanvasEventsMixin:
                 self.toggle_zoom_window_mode()
             if self.mouse_pan_active:
                 self.toggle_mouse_pan()
+            if getattr(self, "add_mode_active", False):
+                self.toggle_add_mode()
+            if getattr(self, "remove_mode_active", False):
+                self.toggle_remove_mode()
         else:
             self.btn_select_target.configure(text="🎯 Click to Select Target Object", fg_color="#d35400")
             self.set_status("Select mode off.")
@@ -83,36 +141,53 @@ class CanvasEventsMixin:
                 self.logger.exception("template_extract_failed")
             return
             
-        # Deleting standard detection
-        clicked_det_id = None
-        for det in self.detections:
-            if det["id"] in self.manual_deleted_ids:
-                continue
-            x, y, w, h = det["bbox"]
-            if x <= ix <= x + w and y <= iy <= y + h:
-                clicked_det_id = det["id"]
-                break
-                
-        if clicked_det_id is not None:
-            self.manual_deleted_ids.add(clicked_det_id)
+        if getattr(self, "add_mode_active", False):
+            if self.template_info is None:
+                return
+            tw = self.template_info["width"]
+            th = self.template_info["height"]
+            new_box = {
+                "bbox": (int(ix - tw // 2), int(iy - th // 2), int(tw), int(th)),
+                "centroid": (int(ix), int(iy))
+            }
+            self.manual_added.append(new_box)
             self.redraw_canvas()
-            self.set_status(f"Removed detection #{clicked_det_id}.")
-            self.logger.info("manual_box_removed id=%s", clicked_det_id)
+            self.set_status("Manually placed object box.")
+            self.logger.info("manual_box_added")
             return
-            
-        # Deleting user added boxes
-        clicked_added_idx = None
-        for idx, man in enumerate(self.manual_added):
-            x, y, w, h = man["bbox"]
-            if x <= ix <= x + w and y <= iy <= y + h:
-                clicked_added_idx = idx
-                break
+
+        if getattr(self, "remove_mode_active", False):
+            # Deleting standard detection
+            clicked_det_id = None
+            for det in self.detections:
+                if det["id"] in self.manual_deleted_ids:
+                    continue
+                x, y, w, h = det["bbox"]
+                if x <= ix <= x + w and y <= iy <= y + h:
+                    clicked_det_id = det["id"]
+                    break
+                    
+            if clicked_det_id is not None:
+                self.manual_deleted_ids.add(clicked_det_id)
+                self.redraw_canvas()
+                self.set_status(f"Removed detection #{clicked_det_id}.")
+                self.logger.info("manual_box_removed id=%s", clicked_det_id)
+                return
                 
-        if clicked_added_idx is not None:
-            self.manual_added.pop(clicked_added_idx)
-            self.redraw_canvas()
-            self.set_status("Removed manual detection box.")
-            self.logger.info("manual_box_removed_manual index=%s", clicked_added_idx)
+            # Deleting user added boxes
+            clicked_added_idx = None
+            for idx, man in enumerate(self.manual_added):
+                x, y, w, h = man["bbox"]
+                if x <= ix <= x + w and y <= iy <= y + h:
+                    clicked_added_idx = idx
+                    break
+                    
+            if clicked_added_idx is not None:
+                self.manual_added.pop(clicked_added_idx)
+                self.redraw_canvas()
+                self.set_status("Removed manual detection box.")
+                self.logger.info("manual_box_removed_manual index=%s", clicked_added_idx)
+                return
 
     def on_left_drag(self, event):
         if self.mouse_pan_active:
@@ -172,22 +247,7 @@ class CanvasEventsMixin:
             self.redraw_canvas()
 
     def on_right_click(self, event):
-        if self.template_info is None or not self.orig_image:
-            return
-            
-        ix, iy = self.canvas_to_image_coords(event.x, event.y)
-        
-        tw = self.template_info["width"]
-        th = self.template_info["height"]
-        
-        new_box = {
-            "bbox": (int(ix - tw // 2), int(iy - th // 2), int(tw), int(th)),
-            "centroid": (int(ix), int(iy))
-        }
-        self.manual_added.append(new_box)
-        self.redraw_canvas()
-        self.set_status("Manually placed object box.")
-        self.logger.info("manual_box_added")
+        pass
 
     def update_previews(self):
         if self.template_info is None:
