@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USER-GUIDE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFeekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous" async></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+  </script>
+  <style>
+    body { max-width: 860px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.7; color: #24292e; background: #ffffff; padding: 0 20px; }
+    h1, h2, h3 { border-bottom: 1px solid #eee; padding-bottom: 0.3em; }
+    code { padding: 0.2em 0.4em; border-radius: 6px; font-family: Consolas, monospace; background: rgba(175,184,193,0.2); }
+    pre { padding: 16px; border-radius: 6px; overflow-x: auto; background: #f6f8fa; border: 1px solid #d0d7de; }
+    pre code { padding: 0; border: none; background: transparent; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 16px; color: #666; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<h1>PlanMiner User Guide (v0.5.3)</h1>
+<p>Welcome to <strong>PlanMiner</strong>! This guide is designed to help new users get started with loading drawings, auto-calibrating color selectors, executing high-precision object counts, and exporting results.</p>
+
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-overview">Overview</a></li>
+<li><a href="#2-interface-layout">Interface Layout</a></li>
+<li><a href="#3-step-by-step-counting-workflow">Step-by-Step Counting Workflow</a></li>
+<li><a href="#4-interactive-detection-adjustments">Interactive Detection Adjustments</a></li>
+<li><a href="#5-canvas-navigation-tips">Canvas Navigation Tips</a></li>
+<li><a href="#6-saving-and-reusing-presets">Saving and Reusing Presets</a></li>
+<li><a href="#7-running-batch-exports">Running Batch Exports</a></li>
+</ol>
+
+<h2>1. Overview</h2>
+<p>PlanMiner is a standalone Windows desktop application for high-precision, color-based object counting in digital drawings (e.g., PDF blueprints, schematics, fire alarm layouts, piping schematics, or PNG/JPG/BMP images). Instead of manual counting, PlanMiner allows you to click a sample symbol on your canvas and automatically locate all matching symbols on the page.</p>
+
+<h2>2. Interface Layout</h2>
+<p>The application layout is divided into three key sections:</p>
+<ul>
+<li><strong>Left Sidebar Panel</strong>: Hosts drawing loading controls, detection parameter sliders (Tolerance, Proximity, Size Scales), target previews, preset profile managers, and batch exporting triggers.</li>
+<li><strong>Top Action Bar</strong>: Provides view navigation controls (Sidebar toggle, Zoom In/Out, Fit to screen, Hand Panning toggle, Reset layout, and the About info button).</li>
+<li><strong>Main Workspace Canvas</strong>: The interactive display where you view drawings, click target objects, see live detection overlays, and edit bounding boxes.</li>
+</ul>
+
+<h2>3. Step-by-Step Counting Workflow</h2>
+<h3>Step 1: Load a Document</h3>
+<ol>
+<li>Click the <strong>Load PDF / Image</strong> button in the sidebar.</li>
+<li>Select your drawing file (supported formats: <code>.pdf</code>, <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.bmp</code>).<ul>
+<li><em>Tip for PDFs</em>: You can adjust the rendering DPI menu (150, 300, 450, 600) next to the load button. Choose <strong>150 DPI</strong> for fast loading on large files, or <strong>300+ DPI</strong> if your target symbols are tiny or require fine rendering detail.</li>
+</ul>
+</li>
+</ol>
+<h3>Step 2: Target a Symbol</h3>
+<ol>
+<li>Click the orange <strong>🎯 Click to Select Target Object</strong> button.</li>
+<li>Move your cursor to the drawing canvas and click directly on the colored symbol or fixture you want to count.</li>
+<li>The application will instantly:<ul>
+<li>Extract the HSV color profile of your symbol.</li>
+<li>Show a zoomed preview of the target in the <strong>Selected Object Preview</strong> window.</li>
+<li>Auto-calibrate the proximity slider to match the physical diameter of the clicked object.</li>
+<li>Apply a live translucent colored mask overlay on all matching symbols across the current page.</li>
+</ul>
+</li>
+</ol>
+<h3>Step 3: Calibrate Parameter Sliders</h3>
+<p>If some matching symbols are missed or if wrong objects are highlighted, adjust the sliders in the sidebar:</p>
+<ul>
+<li><strong>Color Tolerance</strong>: Widens or narrows the HSV color extraction band. Drag it right if symbols are slightly different shades (due to scanning noise/gradients), or drag it left to restrict matches to a very specific color.</li>
+<li><strong>Min / Max Area Scale</strong>: Constrains the size of detected candidates relative to the target symbol. If larger or smaller objects of the same color are showing up as matches, adjust these sliders to filter them out.</li>
+<li><strong>Proximity Cluster</strong>: Controls how close separate pixels must be to be grouped as a single symbol. (This defaults to 1.25x the target's physical size, which is optimal for most drawings).</li>
+</ul>
+
+<h2>4. Interactive Detection Adjustments</h2>
+<p>Even with perfect calibration, text overlays or noisy scans may cause minor detection discrepancies. PlanMiner lets you modify results directly on the canvas:</p>
+<ul>
+<li><strong>Remove False Positives (Left-Click)</strong>: Simply left-click on any highlighted detection box to delete it from the current count.</li>
+<li><strong>Insert Missing Symbols (Right-Click)</strong>: If a symbol was missed (e.g., it is obscured by lines or text), right-click directly on the symbol's center in the canvas to manually insert a new detection box.</li>
+<li><em>Note</em>: The current count label on the screen updates dynamically to reflect your manual overrides.</li>
+</ul>
+
+<h2>5. Canvas Navigation Tips</h2>
+<p>Navigating high-resolution drawings is optimized to be fluid:</p>
+<ul>
+<li><strong>Zooming</strong>: Scroll your mouse wheel forward to zoom in on your cursor's position, or scroll backward to zoom out.</li>
+<li><strong>Panning (Dragging)</strong>: <ul>
+<li><em>Option A</em>: Click and drag using your mouse's <strong>scroll wheel button</strong> (middle click) or <strong>right mouse button</strong>.</li>
+<li><em>Option B</em>: Click the <strong>🖐 Pan</strong> button in the top action bar to activate mouse-drag panning using the primary left-click, then drag the page around. Click it again to deactivate.</li>
+</ul>
+</li>
+<li><strong>Fit Page</strong>: Click the <strong>↺ Fit</strong> button in the top action bar to instantly fit the entire drawing page within your screen boundaries.</li>
+</ul>
+
+<h2>6. Saving and Reusing Presets</h2>
+<p>Once you have calibrated a symbol's color tolerance and area scales, save them to avoid repeating the configuration:</p>
+<ol>
+<li>Go to the <strong>Presets</strong> section in the sidebar.</li>
+<li>Enter a descriptive name (e.g., "Red Fire Extinguisher") and click <strong>Save Preset</strong>.</li>
+<li>The preset will be added to the drop-down menu, storing the sliders and a visual image preview of the target.</li>
+<li>Next time you open a drawing, select your preset from the dropdown menu to apply the configuration instantly.</li>
+</ol>
+
+<h2>7. Running Batch Exports</h2>
+<p>To count symbols across all pages of a multi-page document:</p>
+<ol>
+<li>Once you are satisfied with your detection parameters on the active page, click the green <strong>Batch Scan &amp; Export</strong> button in the sidebar.</li>
+<li>The progress bar will update as PlanMiner scans each page using your settings.</li>
+<li>Once complete, navigate to the <code>output/</code> folder located in the project directory:<ul>
+<li><strong>CSV Summary</strong>: Contains page-by-page and total counts, complete with symbol coordinates and areas.</li>
+<li><strong>Visual Overlays</strong>: Annotated PDF or image pages showing red outline boxes highlighting every detected object.</li>
+</ul>
+</li>
+</ol>
+
+</body>
+</html>

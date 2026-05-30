@@ -122,11 +122,39 @@ class PlanMinerApp(
         self.check_expiry()
 
     def check_expiry(self):
-        if hasattr(self, "days_left") and self.days_left <= 0:
-            self.show_error(
-                "License Expired", 
-                f"This software license has expired ({self.days_left} days left).\n\nPlease contact support or renew the license key to continue using the application."
-            )
+        from lib.date_check import check_license
+        from datetime import datetime, timezone, timedelta
+        
+        build_date_file = get_resource_path("BUILD_DATE")
+        build_date = datetime.now(timezone.utc)
+        if os.path.exists(build_date_file):
+            try:
+                with open(build_date_file, 'r') as bf:
+                    build_date = datetime.strptime(bf.read().strip(), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except Exception as e:
+                self.logger.warning("Failed to parse build date: %s", e)
+
+        last_run_file = get_writable_path(os.path.join("assets", ".run_info"))
+        is_valid, msg = check_license(build_date, self.expiry_days, last_run_file)
+        self.logger.info("License check: %s", msg)
+
+        # Calculate expiry_date and self.days_left for About dialog
+        exp_date = build_date + timedelta(days=self.expiry_days)
+        self.expiry_date = exp_date.strftime("%Y-%m-%d")
+        
+        # Extract remaining days from the message or fallback
+        self.days_left = 0
+        try:
+            parts = msg.split()
+            for i, part in enumerate(parts):
+                if "day(s)" in part and i > 0:
+                    self.days_left = int(parts[i-1])
+                    break
+        except Exception:
+            self.days_left = (exp_date.date() - datetime.now().date()).days
+
+        if not is_valid:
+            self.show_error("License Verification Failed", msg)
             self.destroy()
             sys.exit(0)
 
@@ -155,23 +183,13 @@ class PlanMinerApp(
         self.licensed_to = "Internal Testing"
         self.expiry_date = "2027-12-31"
         self.days_left = 60
+        self.expiry_days = 60
         
         self.def_tolerance = 0.5
         self.def_min_area = 0.2
         self.def_max_area = 4.0
         self.def_proximity = 100.0
         self.app_version = "0.5.3"
-        
-        # Load build date from package or fallback to current system time
-        from datetime import datetime, timedelta
-        build_date_file = get_resource_path("BUILD_DATE")
-        build_date = datetime.now()
-        if os.path.exists(build_date_file):
-            try:
-                with open(build_date_file, 'r') as bf:
-                    build_date = datetime.strptime(bf.read().strip(), "%Y-%m-%d")
-            except Exception as e:
-                self.logger.warning("Failed to parse build date: %s", e)
         
         if os.path.exists(self.config_path):
             try:
@@ -189,11 +207,7 @@ class PlanMinerApp(
                         
                         licensing = cfg.get("licensing", {})
                         self.licensed_to = licensing.get("licensed_to", self.licensed_to)
-                        
-                        expiry_days = int(licensing.get("expiry_days", 60))
-                        exp_date = build_date + timedelta(days=expiry_days)
-                        self.expiry_date = exp_date.strftime("%Y-%m-%d")
-                        self.days_left = (exp_date.date() - datetime.now().date()).days
+                        self.expiry_days = int(licensing.get("expiry_days", 60))
                         
                         version_file = branding.get("version_file", "VERSION")
                         version_file_path = get_resource_path(version_file)
