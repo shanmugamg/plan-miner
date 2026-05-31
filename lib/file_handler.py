@@ -74,12 +74,13 @@ class FileHandlerMixin:
         if self.total_pages == 0:
             return
             
-        # Performance Audit Fix: Release memory from previously cached pages
+        # Performance Audit Fix: Keep a ±1 sliding window; evict pages outside the window
+        # This allows instant prev/next navigation without re-rendering adjacent pages.
+        _CACHE_WINDOW = 1
         for i in range(self.total_pages):
-            if i != index and self.doc_pages[i] is not None:
+            if abs(i - index) > _CACHE_WINDOW and self.doc_pages[i] is not None:
                 self.doc_pages[i] = None
-        import gc
-        gc.collect()
+        # Avoid gc.collect() on every navigation — let Python's cyclic GC handle it naturally
         
         self.current_page_idx = index
         self.lbl_page.configure(text=f"Page {index + 1} / {self.total_pages}")
@@ -223,8 +224,8 @@ class FileHandlerMixin:
         if self.pdf_doc:
             try:
                 self.pdf_doc.close()
-            except:
-                pass
+            except Exception as e:
+                self.logger.warning("Error closing PDF during reset: %s", e)
             self.pdf_doc = None
             
         # 2. Reset model/logic variables

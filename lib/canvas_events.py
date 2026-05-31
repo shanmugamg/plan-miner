@@ -271,11 +271,14 @@ class CanvasEventsMixin:
         self.lbl_min_area.configure(text=f"Min Object Size Filter: {self.slider_min_area.get():.2f}x")
         self.lbl_max_area.configure(text=f"Max Object Size Filter: {self.slider_max_area.get():.2f}x")
         self.lbl_proximity.configure(text=f"Proximity Clustering: {int(self.slider_proximity.get())} px")
-        
+
         if self.template_info is not None:
             if self.switch_live_preview.get():
-                self.update_live_preview()
-                self.redraw_canvas()
+                # Debounce: cancel any pending preview job and schedule a new one after 120ms idle.
+                # This prevents detect_objects() from firing on every slider tick during fast drags.
+                if getattr(self, "_preview_after_id", None):
+                    self.after_cancel(self._preview_after_id)
+                self._preview_after_id = self.after(120, self._dispatch_preview_worker)
 
     def on_live_toggle(self):
         if self.switch_live_preview.get():
@@ -341,3 +344,69 @@ class CanvasEventsMixin:
         self.live_overlay_pil = Image.fromarray(self.live_overlay_rgb)
         self.live_mask = mask
         self.live_mask_signature = signature
+
+    def _dispatch_preview_worker(self):
+        """Runs live preview mask computation in a background thread to avoid blocking the UI.
+        Called after a 120ms debounce from on_param_changed. Uses a generation counter so that
+        only the result from the most-recently-scheduled worker is published to the canvas."""
+        self._preview_after_id = None
+        if self.template_info is None or not self.orig_image:
+            return
+
+        img_bgr = self.doc_pages[self.current_page_idx]
+        if img_bgr is None:
+            return
+
+        # Snapshot parameters now to avoid data races with the UI thread
+        template_info = self.template_info
+        tolerance = float(self.slider_tolerance.get())
+        proximity = float(self.slider_proximity.get())
+        min_area = float(self.slider_min_area.get())
+        max_area = float(self.slider_max_area.get())
+        page_idx = self.current_page_idx
+
+        signature = (
+            page_idx,
+            tuple(template_info["lower_bound"]),
+            tuple(template_info["upper_bound"]),
+            tolerance, proximity, min_area, max_area
+        )
+
+        if self.live_mask_signature == signature and self.live_overlay_rgb is not None:
+            return  # Cache hit — nothing to recompute
+
+        # Increment generation so stale workers do not overwrite a newer result
+        self._preview_generation = getattr(self, "_preview_generation", 0) + 1
+        my_gen = self._preview_generation
+
+        import threading
+
+        def _worker():
+            try:
+                _, mask = ColorDetectorEngine.detect_objects(
+                    img_bgr, template_info,
+                    tolerance=tolerance,
+                    proximity=proximity,
+                    min_area_scale=min_area,
+                    max_area_scale=max_area
+                )
+                overlay = np.zeros_like(img_bgr)
+                overlay[mask > 0] = [230, 126, 34]
+                blended = cv2.addWeighted(img_bgr, 0.7, overlay, 0.3, 0)
+                live_overlay_rgb = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
+                live_overlay_pil = Image.fromarray(live_overlay_rgb)
+
+                def _publish():
+                    # Only commit result if this is still the latest worker generation
+                    if getattr(self, "_preview_generation", 0) == my_gen:
+                        self.live_mask = mask
+                        self.live_mask_signature = signature
+                        self.live_overlay_rgb = live_overlay_rgb
+                        self.live_overlay_pil = live_overlay_pil
+                        self.redraw_canvas()
+
+                self.after(0, _publish)
+            except Exception:
+                pass  # Background preview failure is non-critical; main detection is unaffected
+
+        threading.Thread(target=_worker, daemon=True).start()

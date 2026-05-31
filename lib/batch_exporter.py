@@ -47,12 +47,11 @@ class BatchExporterMixin:
         
         progress_win = ctk.CTkToplevel(self)
         progress_win.title("Processing Pages")
-        progress_win.geometry("400x150")
+        progress_win.withdraw()  # Hide while computing position to prevent visual jump
         progress_win.transient(self)
-        progress_win.grab_set()
         apply_window_icon(progress_win, self.ico_path)
-        
-        # Center dialog relative to parent frame window
+
+        # Center dialog relative to parent — set size + position in a single geometry call
         progress_win.update_idletasks()
         px = self.winfo_x()
         py = self.winfo_y()
@@ -60,7 +59,9 @@ class BatchExporterMixin:
         ph = self.winfo_height()
         x = px + (pw - 400) // 2
         y = py + (ph - 150) // 2
-        progress_win.geometry(f"+{x}+{y}")
+        progress_win.geometry(f"400x150+{x}+{y}")
+        progress_win.deiconify()
+        progress_win.grab_set()
         
         lbl_p = ctk.CTkLabel(progress_win, text="Initializing...", font=ctk.CTkFont(family=self.font_family, size=14))
         lbl_p.pack(pady=20)
@@ -133,6 +134,8 @@ class BatchExporterMixin:
                     # Performance Audit Fix: Free memory for processed page if not currently viewed
                     if idx != self.current_page_idx:
                         self.doc_pages[idx] = None
+                    # Collect GC periodically (every 10 pages) instead of per-page to reduce overhead
+                    if idx % 10 == 9:
                         import gc
                         gc.collect()
 

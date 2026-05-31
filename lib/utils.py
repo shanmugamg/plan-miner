@@ -31,7 +31,8 @@ def apply_window_icon(window, ico_path, delay_ms=150):
     """Apply a custom .ico to a CTkToplevel window.
 
     CustomTkinter resets the Toplevel icon shortly after creation, so we
-    schedule the iconbitmap call via after() to run after that reset.
+    schedule the iconbitmap call via after() to run after that reset, and
+    also bind to the <Map> event to apply the icon when the window is mapped/deiconified.
     """
     if not ico_path or not os.path.exists(ico_path):
         return
@@ -53,8 +54,21 @@ def apply_window_icon(window, ico_path, delay_ms=150):
             except Exception:
                 pass
 
+    # Try applying immediately
+    _apply()
+
     # Schedule once after delay to let CTkToplevel initial layout settle
     window.after(delay_ms, _apply)
+
+    # Bind to <Map> event so that when the window is shown/deiconified,
+    # we apply the icon again after small delays to override CustomTkinter's mapping resets.
+    def on_map(event):
+        if event.widget == window:
+            window.after(50, _apply)
+            window.after(150, _apply)
+            window.after(300, _apply)
+
+    window.bind("<Map>", on_map, add="+")
 
 def load_svg_icon(name, size=(20, 20)):
     path = get_resource_path(os.path.join("assets", "icons", f"{name}.svg"))

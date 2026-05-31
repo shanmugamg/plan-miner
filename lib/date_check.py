@@ -2,6 +2,9 @@ from datetime import datetime, timezone
 import requests
 import os
 import base64
+import logging
+
+_logger = logging.getLogger(__name__)
 
 TIME_SOURCES = [
     ("https://timeapi.io/api/time/current/zone?timeZone=UTC", lambda r: r.json()["dateTime"]),
@@ -23,7 +26,8 @@ def get_real_utc_time() -> datetime | None:
                     return dt.replace(tzinfo=timezone.utc)
                 else:
                     return dt.astimezone(timezone.utc)
-        except Exception:
+        except (requests.RequestException, KeyError, ValueError, AttributeError) as e:
+            _logger.debug("time_source_failed url=%s err=%s", url, e)
             continue
 
     # Last resort: use HTTP Date header from a reliable host
@@ -33,8 +37,8 @@ def get_real_utc_time() -> datetime | None:
         if date_str:
             from email.utils import parsedate_to_datetime
             return parsedate_to_datetime(date_str).astimezone(timezone.utc)
-    except Exception:
-        pass
+    except (requests.RequestException, ValueError) as e:
+        _logger.debug("http_head_time_failed err=%s", e)
 
     return None
 
@@ -47,7 +51,7 @@ def load_last_run(file_path: str) -> datetime | None:
             encoded = f.read()
             decoded = base64.b64decode(encoded).decode("utf-8").strip()
             return datetime.fromisoformat(decoded).astimezone(timezone.utc)
-    except Exception:
+    except (OSError, ValueError, UnicodeDecodeError):
         return None
 
 def save_last_run(file_path: str, dt: datetime) -> None:
@@ -58,7 +62,7 @@ def save_last_run(file_path: str, dt: datetime) -> None:
         encoded = base64.b64encode(iso_str.encode("utf-8"))
         with open(file_path, "wb") as f:
             f.write(encoded)
-    except Exception:
+    except OSError:
         pass
 
 def check_license(build_date: datetime, expiry_days: int, last_run_file: str) -> tuple[bool, str]:

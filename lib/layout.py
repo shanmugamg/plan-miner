@@ -349,8 +349,7 @@ class LayoutMixin:
             text_color="lime"
         )
         self.lbl_nav_tip.pack(side=tk.LEFT, padx=(10, 0))
-        ToolTip(self.btn_obj_add, "Add Box Mode (Left-click canvas to place)")
-        
+
         # Scrollable / Panning Main Canvas
         self.canvas = tk.Canvas(self.canvas_frame, bg="#181818", highlightthickness=0)
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
