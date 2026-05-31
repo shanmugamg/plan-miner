@@ -9,24 +9,24 @@ class CTkMessageDialog(ctk.CTkToplevel):
     def __init__(self, parent, title, message, dialog_type="info"):
         super().__init__(parent)
         self.withdraw()
+        self.attributes("-alpha", 0.0)
         self.title(parent.app_name)
-        self.geometry("450x220")
         self.resizable(False, False)
+        
+        # Center dialog relative to parent frame window in a single geometry setting
+        width, height = 450, 220
+        px = parent.winfo_x()
+        py = parent.winfo_y()
+        pw = parent.winfo_width()
+        ph = parent.winfo_height()
+        x = px + (pw - width) // 2
+        y = py + (ph - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
         
         # Make modal & transient
         self.transient(parent)
         self.grab_set()
         apply_window_icon(self, parent.ico_path)
-        
-        # Center dialog relative to parent frame window
-        self.update_idletasks()
-        px = parent.winfo_x()
-        py = parent.winfo_y()
-        pw = parent.winfo_width()
-        ph = parent.winfo_height()
-        x = px + (pw - 450) // 2
-        y = py + (ph - 220) // 2
-        self.geometry(f"+{x}+{y}")
         
         self.result = None
         
@@ -96,9 +96,17 @@ class CTkMessageDialog(ctk.CTkToplevel):
             btn_ok.pack(side="right")
             
         self.deiconify()
-        self.attributes("-alpha", 1.0)
+        self._fade_in()
         self.wait_window(self)
         
+    def _fade_in(self, alpha=0.0):
+        if not self.winfo_exists():
+            return
+        if alpha < 1.0:
+            alpha = min(1.0, alpha + 0.2)
+            self.attributes("-alpha", alpha)
+            self.after(10, lambda: self._fade_in(alpha))
+            
     def on_ok(self):
         self.result = True
         self.destroy()
@@ -116,24 +124,24 @@ class CTkInputDialog(ctk.CTkToplevel):
     def __init__(self, parent, title, text):
         super().__init__(parent)
         self.withdraw()
+        self.attributes("-alpha", 0.0)
         self.title(parent.app_name)
-        self.geometry("400x200")
         self.resizable(False, False)
+        
+        # Center dialog relative to parent frame window in a single geometry setting
+        width, height = 400, 200
+        px = parent.winfo_x()
+        py = parent.winfo_y()
+        pw = parent.winfo_width()
+        ph = parent.winfo_height()
+        x = px + (pw - width) // 2
+        y = py + (ph - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
         
         # Make modal & transient
         self.transient(parent)
         self.grab_set()
         apply_window_icon(self, parent.ico_path)
-        
-        # Center dialog relative to parent frame window
-        self.update_idletasks()
-        px = parent.winfo_x()
-        py = parent.winfo_y()
-        pw = parent.winfo_width()
-        ph = parent.winfo_height()
-        x = px + (pw - 400) // 2
-        y = py + (ph - 200) // 2
-        self.geometry(f"+{x}+{y}")
         
         self.result = None
         
@@ -193,9 +201,17 @@ class CTkInputDialog(ctk.CTkToplevel):
         btn_cancel.pack(side="right", padx=5)
         
         self.deiconify()
-        self.attributes("-alpha", 1.0)
+        self._fade_in()
         self.wait_window(self)
         
+    def _fade_in(self, alpha=0.0):
+        if not self.winfo_exists():
+            return
+        if alpha < 1.0:
+            alpha = min(1.0, alpha + 0.2)
+            self.attributes("-alpha", alpha)
+            self.after(10, lambda: self._fade_in(alpha))
+            
     def on_ok(self):
         self.result = self.entry.get().strip()
         self.destroy()

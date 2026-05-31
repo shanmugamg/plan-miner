@@ -27,7 +27,7 @@ def register_custom_font(font_path):
                 return True
     return False
 
-def apply_window_icon(window, ico_path, delay_ms=50):
+def apply_window_icon(window, ico_path, delay_ms=150):
     """Apply a custom .ico to a CTkToplevel window.
 
     CustomTkinter resets the Toplevel icon shortly after creation, so we
@@ -38,21 +38,23 @@ def apply_window_icon(window, ico_path, delay_ms=50):
     ico_path = os.path.abspath(ico_path)
 
     def _apply():
+        if not window.winfo_exists():
+            return
         try:
+            # Try native Windows iconbitmap API first
             window.iconbitmap(ico_path)
         except Exception:
-            pass
-        try:
-            img = Image.open(ico_path)
-            photo = ImageTk.PhotoImage(img)
-            window._icon_photo = photo
-            window.iconphoto(True, photo)
-        except Exception:
-            pass
+            try:
+                # Fallback to iconphoto only if iconbitmap fails
+                img = Image.open(ico_path)
+                photo = ImageTk.PhotoImage(img)
+                window._icon_photo = photo
+                window.iconphoto(True, photo)
+            except Exception:
+                pass
 
-    _apply()
+    # Schedule once after delay to let CTkToplevel initial layout settle
     window.after(delay_ms, _apply)
-    window.after(delay_ms * 4, _apply)
 
 def load_svg_icon(name, size=(20, 20)):
     path = get_resource_path(os.path.join("assets", "icons", f"{name}.svg"))

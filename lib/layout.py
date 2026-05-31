@@ -9,8 +9,8 @@ class LayoutMixin:
         self.icon_zoom_plus = load_svg_icon("zoom-plus", (16, 16))
         self.icon_zoom_minus = load_svg_icon("zoom-minus", (16, 16))
         self.icon_pan = load_svg_icon("pan", (16, 16))
-        self.icon_add = load_svg_icon("obj-add", (16, 16))
-        self.icon_remove = load_svg_icon("obj-remove", (16, 16))
+        self.icon_add = load_svg_icon("plus", (16, 16))
+        self.icon_remove = load_svg_icon("minus", (16, 16))
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=0)
@@ -235,7 +235,26 @@ class LayoutMixin:
         self.header_bar = ctk.CTkFrame(self.canvas_frame, height=40, fg_color="transparent")
         self.header_bar.pack(side=tk.TOP, fill=tk.X, padx=10, pady=(5, 0))
         
-        # Left group: Sidebar toggle
+        # 1. About button — far right
+        self.btn_about = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_about, width=28, height=28, 
+            fg_color="#6c3483", hover_color="#7d3c98",
+            command=self.show_about_dialog
+        )
+        self.btn_about.pack(side=tk.RIGHT, padx=(6, 0))
+        ToolTip(self.btn_about, "About PlanMiner")
+
+        # 2. Reset button - next on the right
+        self.btn_reset = ctk.CTkButton(
+            self.header_bar, text="🗑", width=28, height=28, 
+            fg_color="#c0392b", hover_color="#cd6155",
+            font=ctk.CTkFont(family=self.font_family, size=14, weight="bold"),
+            command=self.reset_to_clean_state
+        )
+        self.btn_reset.pack(side=tk.RIGHT, padx=(2, 0))
+        ToolTip(self.btn_reset, "Reset Document & Settings")
+
+        # 3. Sidebar toggle - far left
         self.btn_toggle_sidebar = ctk.CTkButton(
             self.header_bar, text="◀ Hide Sidebar", width=110, height=28, 
             fg_color="#2c3e50", hover_color="#34495e",
@@ -244,114 +263,92 @@ class LayoutMixin:
         )
         self.btn_toggle_sidebar.pack(side=tk.LEFT)
 
+        # 4. Separator
+        sep1 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
+        sep1.pack(side=tk.LEFT, padx=6)
+
+        # 5. Zoom Group (Zoom In, Zoom Out, Box Zoom)
+        self.btn_zoom_in = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_zoom_plus, width=28, height=28, 
+            fg_color="#1e8449", hover_color="#27ae60",
+            command=lambda: self.adjust_zoom_fixed(1.2)
+        )
+        self.btn_zoom_in.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_zoom_in, "Zoom In")
+        
+        self.btn_zoom_out = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_zoom_minus, width=28, height=28, 
+            fg_color="#922b21", hover_color="#c0392b",
+            command=lambda: self.adjust_zoom_fixed(0.8)
+        )
+        self.btn_zoom_out.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_zoom_out, "Zoom Out")
+        
+        self.btn_zoom_window = ctk.CTkButton(
+            self.header_bar, text="🔍", width=28, height=28, 
+            fg_color="#b7770d", hover_color="#d4a017",
+            font=ctk.CTkFont(family=self.font_family, size=13, weight="bold"),
+            command=self.toggle_zoom_window_mode
+        )
+        self.btn_zoom_window.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_zoom_window, "Box Zoom")
+
+        # 6. Separator
+        sep2 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
+        sep2.pack(side=tk.LEFT, padx=6)
+
+        # 7. Mouse pan button
+        self.mouse_pan_active = False
+        self.btn_mouse_pan = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_pan, width=28, height=28, 
+            fg_color="#138d75", hover_color="#16a085",
+            command=self.toggle_mouse_pan
+        )
+        self.btn_mouse_pan.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_mouse_pan, "Hand Panning Mode")
+
+        # 8. Separator
+        sep3 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
+        sep3.pack(side=tk.LEFT, padx=6)
+
+        # 9. Fit Page button
+        self.btn_zoom_reset = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_zoom_all, width=28, height=28, 
+            fg_color="#1a7abf", hover_color="#2980b9",
+            command=self.reset_zoom_button
+        )
+        self.btn_zoom_reset.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_zoom_reset, "Fit Page to Screen")
+
+        # 10. Separator
+        sep4 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
+        sep4.pack(side=tk.LEFT, padx=6)
+
+        # 11. Add / Delete button and the helper text
+        self.add_mode_active = False
+        self.btn_obj_add = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_add, width=28, height=28,
+            fg_color="#2c3e50", hover_color="#34495e",
+            command=self.toggle_add_mode
+        )
+        self.btn_obj_add.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_obj_add, "Add Box Mode (Left-click canvas to place)")
+
+        self.remove_mode_active = False
+        self.btn_obj_remove = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_remove, width=28, height=28,
+            fg_color="#2c3e50", hover_color="#34495e",
+            command=self.toggle_remove_mode
+        )
+        self.btn_obj_remove.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_obj_remove, "Delete Box Mode (Left-click boxes to remove)")
+
         self.lbl_nav_tip = ctk.CTkLabel(
             self.header_bar, text="Select Add / Delete tool to edit boxes",
             font=ctk.CTkFont(family=self.font_family, size=11, weight="bold"),
             text_color="lime"
         )
         self.lbl_nav_tip.pack(side=tk.LEFT, padx=(10, 0))
-
-        # Right group: all actions grouped together
-        right_group = ctk.CTkFrame(self.header_bar, fg_color="transparent")
-        right_group.pack(side=tk.RIGHT)
-
-        # About button — far right
-        self.btn_about = ctk.CTkButton(
-            right_group, text="", image=self.icon_about, width=28, height=28, 
-            fg_color="#6c3483", hover_color="#7d3c98",
-            command=self.show_about_dialog
-        )
-        self.btn_about.pack(side=tk.RIGHT, padx=(6, 0))
-        ToolTip(self.btn_about, "About PlanMiner")
-
-        # Reset button
-        self.btn_reset = ctk.CTkButton(
-            right_group, text="🗑", width=28, height=28, 
-            fg_color="#c0392b", hover_color="#cd6155",
-            font=ctk.CTkFont(family=self.font_family, size=14, weight="bold"),
-            command=self.reset_to_clean_state
-        )
-        self.btn_reset.pack(side=tk.RIGHT, padx=(2, 0))
-        ToolTip(self.btn_reset, "Reset Document & Settings")
-
-        # Separator
-        sep = ctk.CTkLabel(right_group, text="|", text_color="#555555", width=6)
-        sep.pack(side=tk.RIGHT, padx=2)
-
-        # Zoom controls
-        self.btn_zoom_reset = ctk.CTkButton(
-            right_group, text="", image=self.icon_zoom_all, width=28, height=28, 
-            fg_color="#1a7abf", hover_color="#2980b9",
-            command=self.reset_zoom_button
-        )
-        self.btn_zoom_reset.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_zoom_reset, "Fit Page to Screen")
-        
-        # Separator before Fit button
-        sep_fit = ctk.CTkLabel(right_group, text="|", text_color="#555555", width=6)
-        sep_fit.pack(side=tk.RIGHT, padx=2)
-        
-        self.btn_zoom_in = ctk.CTkButton(
-            right_group, text="", image=self.icon_zoom_plus, width=28, height=28, 
-            fg_color="#1e8449", hover_color="#27ae60",
-            command=lambda: self.adjust_zoom_fixed(1.2)
-        )
-        self.btn_zoom_in.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_zoom_in, "Zoom In")
-        
-        self.btn_zoom_out = ctk.CTkButton(
-            right_group, text="", image=self.icon_zoom_minus, width=28, height=28, 
-            fg_color="#922b21", hover_color="#c0392b",
-            command=lambda: self.adjust_zoom_fixed(0.8)
-        )
-        self.btn_zoom_out.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_zoom_out, "Zoom Out")
-        
-        self.btn_zoom_window = ctk.CTkButton(
-            right_group, text="🔍", width=28, height=28, 
-            fg_color="#b7770d", hover_color="#d4a017",
-            font=ctk.CTkFont(family=self.font_family, size=13, weight="bold"),
-            command=self.toggle_zoom_window_mode
-        )
-        self.btn_zoom_window.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_zoom_window, "Box Zoom")
-
-        # Separator
-        sep2 = ctk.CTkLabel(right_group, text="|", text_color="#555555", width=6)
-        sep2.pack(side=tk.RIGHT, padx=2)
-
-        # Mouse pan toggle
-        self.mouse_pan_active = False
-        self.btn_mouse_pan = ctk.CTkButton(
-            right_group, text="", image=self.icon_pan, width=28, height=28, 
-            fg_color="#138d75", hover_color="#16a085",
-            command=self.toggle_mouse_pan
-        )
-        self.btn_mouse_pan.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_mouse_pan, "Hand Panning Mode")
-
-        # Separator for manual edit modes
-        sep_modes = ctk.CTkLabel(right_group, text="|", text_color="#555555", width=6)
-        sep_modes.pack(side=tk.RIGHT, padx=2)
-
-        # Object remove mode toggle
-        self.remove_mode_active = False
-        self.btn_obj_remove = ctk.CTkButton(
-            right_group, text="", image=self.icon_remove, width=28, height=28,
-            fg_color="#2c3e50", hover_color="#34495e",
-            command=self.toggle_remove_mode
-        )
-        self.btn_obj_remove.pack(side=tk.RIGHT, padx=2)
-        ToolTip(self.btn_obj_remove, "Delete Box Mode (Left-click boxes to remove)")
-
-        # Object add mode toggle
-        self.add_mode_active = False
-        self.btn_obj_add = ctk.CTkButton(
-            right_group, text="", image=self.icon_add, width=28, height=28,
-            fg_color="#2c3e50", hover_color="#34495e",
-            command=self.toggle_add_mode
-        )
-        self.btn_obj_add.pack(side=tk.RIGHT, padx=2)
         ToolTip(self.btn_obj_add, "Add Box Mode (Left-click canvas to place)")
         
         # Scrollable / Panning Main Canvas

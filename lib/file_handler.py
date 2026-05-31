@@ -217,6 +217,8 @@ class FileHandlerMixin:
         return True
 
     def reset_to_clean_state(self):
+        if not self.ask_yes_no("Confirm Reset", "Are you sure you want to reset the current document and settings?"):
+            return
         # 1. Close open PDF/document
         if self.pdf_doc:
             try:
