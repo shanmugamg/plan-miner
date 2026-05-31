@@ -1,4 +1,4 @@
-# Security and Compliance Notes (v0.5.3)
+# Security and Compliance Notes (v0.5.6)
 
 This document details the security posture, defensive configurations, and codesigning guidelines implemented in **PlanMiner**.
 

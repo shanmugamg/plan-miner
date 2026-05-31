@@ -1,4 +1,4 @@
-# Logging and Audit Notes (v0.5.3)
+# Logging and Audit Notes (v0.5.6)
 
 PlanMiner writes structured, audit-ready logs to `logs/planminer.log`.
 

@@ -1,4 +1,4 @@
-# Agent Notes & Implementation Details (v0.5.3)
+# Agent Notes & Implementation Details (v0.5.6)
 
 This document contains key engineering notes, architectural details, layout adjustments, and multi-monitor DPI findings for developers and agents working on the **PlanMiner** project.
 
@@ -6,7 +6,7 @@ This document contains key engineering notes, architectural details, layout adju
 
 ## Technical Architecture
 
-In version 0.5.3, the codebase has been fully refactored into a highly modular, mixin-based architecture. To maintain exceptional readability and ease of maintenance, the project strives to keep code files concise and under 200 lines where possible.
+In version 0.5.6, the codebase has been fully refactored into a highly modular, mixin-based architecture. To maintain exceptional readability and ease of maintenance, the project strives to keep code files concise and under 200 lines where possible.
 
 ### 1. Main Entrypoint: `app_gui.py`
 - Inherits from multiple mixins in the `lib` package to construct the full application state, canvas controls, and event handler loops while keeping the `self` context fully cohesive.
@@ -37,7 +37,7 @@ In version 0.5.3, the codebase has been fully refactored into a highly modular, 
   - In compiled PyInstaller builds (`sys.frozen`), writes logs using a `RotatingFileHandler` (max size 5MB, up to 2 backups).
   - Employs a custom `RedactingFilter` to identify and scrub Windows username path patterns (e.g. `C:\Users\username\`) replacing them with `C:\Users\<REDACTED>\` to secure customer PII.
 - [utils.py](file:///d:/python-projects/raghu-software/pixelquant/lib/utils.py): Provides helper utilities for coordinate mapping and DPI-safe path resolution.
-  - Dialog icon handling retries icon application (iconbitmap + iconphoto) to override CustomTkinter defaults.
+  - Dialog icon handling retries icon application (iconbitmap + iconphoto) immediately, on delayed layouts, and binds to the `<Map>` event to override CustomTkinter's mapping-time resets.
 
 ### 3. Platform Support Matrix
 - **Supported OS**: Windows 10/11 (due to UI/DPI integration, specific `ctypes` hooks, and Codesign execution paths).

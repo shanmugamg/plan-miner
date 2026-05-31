@@ -192,7 +192,7 @@ class PlanMinerApp(
         self.def_max_area = 4.0
         self.def_proximity = 100.0
         self.def_legend = True
-        self.app_version = "0.5.3"
+        self.app_version = "0.5.6"
         
         if os.path.exists(self.config_path):
             try:

@@ -72,7 +72,7 @@ python build.py
 ```
 
 The compiled binary will be located in the `PlanMiner_Dist` folder:
-- **Output File**: `PlanMiner_Dist/PlanMiner_v0_5_3.exe`
+- **Output File**: `PlanMiner_Dist/PlanMiner_v0_5_6.exe`
 
 ### Configuring Codesigning
 To sign the built executable using a certificate from the Windows Certificate Store:
@@ -104,7 +104,7 @@ pixelquant/
 ├── output/                 # Destination folder for batch runs & CSVs
 ├── app_gui.py              # Main application entry point (loads and initializes mixins)
 ├── build.py                # Compilation automation script
-├── VERSION                 # Version control file (currently 0.5.3)
+├── VERSION                 # Version control file (currently 0.5.6)
 ├── README.md               # Developer manual / technical setup instructions
 ├── USER-GUIDE.md           # Getting started manual for end-users
 ├── AGENT.md                # Developer / Agent handoff notes
