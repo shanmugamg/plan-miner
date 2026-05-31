@@ -11,6 +11,7 @@ class LayoutMixin:
         self.icon_pan = load_svg_icon("pan", (16, 16))
         self.icon_add = load_svg_icon("plus", (16, 16))
         self.icon_remove = load_svg_icon("minus", (16, 16))
+        self.icon_zoom_select = load_svg_icon("zoom-selection", (16, 16))
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=0)
@@ -267,7 +268,15 @@ class LayoutMixin:
         sep1 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
         sep1.pack(side=tk.LEFT, padx=6)
 
-        # 5. Zoom Group (Zoom In, Zoom Out, Box Zoom)
+        # 5. Zoom Group (Box Zoom, Zoom In, Zoom Out)
+        self.btn_zoom_window = ctk.CTkButton(
+            self.header_bar, text="", image=self.icon_zoom_select, width=28, height=28, 
+            fg_color="#b7770d", hover_color="#d4a017",
+            command=self.toggle_zoom_window_mode
+        )
+        self.btn_zoom_window.pack(side=tk.LEFT, padx=2)
+        ToolTip(self.btn_zoom_window, "Box Zoom")
+
         self.btn_zoom_in = ctk.CTkButton(
             self.header_bar, text="", image=self.icon_zoom_plus, width=28, height=28, 
             fg_color="#1e8449", hover_color="#27ae60",
@@ -283,15 +292,6 @@ class LayoutMixin:
         )
         self.btn_zoom_out.pack(side=tk.LEFT, padx=2)
         ToolTip(self.btn_zoom_out, "Zoom Out")
-        
-        self.btn_zoom_window = ctk.CTkButton(
-            self.header_bar, text="🔍", width=28, height=28, 
-            fg_color="#b7770d", hover_color="#d4a017",
-            font=ctk.CTkFont(family=self.font_family, size=13, weight="bold"),
-            command=self.toggle_zoom_window_mode
-        )
-        self.btn_zoom_window.pack(side=tk.LEFT, padx=2)
-        ToolTip(self.btn_zoom_window, "Box Zoom")
 
         # 6. Separator
         sep2 = ctk.CTkLabel(self.header_bar, text="|", text_color="#555555", width=6)
